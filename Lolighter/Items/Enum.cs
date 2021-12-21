@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Lolighter.Items
+﻿namespace Lolighter.Items
 {
     static class Enum
     {
@@ -79,23 +77,6 @@ namespace Lolighter.Items
             public const int RedFlashStay = 6;
             public const int RedFlashFade = 7;
             public const int RedTransition = 8;
-        }
-
-        public static class EnvironmentLight
-        {
-            public static List<int> LightableList(string environment = "")
-            {
-                switch (environment)
-                {
-                    case "InterscopeEnvironment":
-                    case "SkrillexEnvironment":
-                        return new List<int>() { 0, 1, 2, 3, 4, 6, 7 };
-                    case "BillieEnvironment":
-                        return new List<int>() { 0, 1, 2, 3, 4, 6, 7, 10, 11 };
-                    default:
-                        return new List<int>() { 0, 1, 2, 3, 4 };
-                }
-            }
         }
     }
 }

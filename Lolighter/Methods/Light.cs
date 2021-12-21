@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using static Lolighter.Items.Enum;
+using static Lolighter.Items.Utils;
 using static Lolighter.Items.Options;
 
-// i might want to change some of these algorithm
+// i might want to change/fix some of these algorithm
 namespace Lolighter.Methods
 {
     static class Light
@@ -37,6 +38,7 @@ namespace Lolighter.Methods
             bool wasSlider = false;
             MapEvent ev;
             List<int> pattern = OnlyCommonEvent ? EnvironmentLight.LightableList() : EnvironmentLight.LightableList(environment);
+            int maxPattern = pattern.Count;
             int patternIndex = 0;
             int patternCount = 0;
             List<MapEvent> eventTempo = new List<MapEvent>();
@@ -556,7 +558,7 @@ namespace Lolighter.Methods
                         }
                         else
                         {
-                            old = pattern[4];
+                            old = pattern[maxPattern - 1];
                         }
 
                         do
@@ -619,7 +621,7 @@ namespace Lolighter.Methods
                     }
 
                     // Pattern have 5 notes in total (5 lights available)
-                    if (patternIndex < 4)
+                    if (patternIndex < maxPattern - 1)
                     {
                         patternIndex++;
                     }

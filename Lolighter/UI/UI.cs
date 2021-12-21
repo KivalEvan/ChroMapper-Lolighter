@@ -33,18 +33,6 @@ namespace Lolighter.UserInterface
             _lolighterMenu = new GameObject("Lolighter Menu");
             _lolighterMenu.transform.parent = parent.transform;
 
-            RectTransform rectTransform = _lolighterMenu.AddComponent<RectTransform>();
-            rectTransform.localScale = new Vector3(1, 1, 1);
-            rectTransform.sizeDelta = new Vector2(200, 100);
-            rectTransform.pivot = new Vector2(0, 0);
-            rectTransform.anchorMin = rectTransform.anchorMax = new Vector2(0, 1);
-            rectTransform.anchoredPosition = new Vector3(0, 0, 0);
-
-            Image image = _lolighterMenu.AddComponent<Image>();
-            image.sprite = PersistentUI.Instance.Sprites.Background;
-            image.type = Image.Type.Sliced;
-            image.color = new Color(0.25f, 0.25f, 0.25f, 1);
-
             _lolighterMenu.SetActive(false);
             _extensionBtn.Click = () =>
             {
@@ -52,5 +40,6 @@ namespace Lolighter.UserInterface
                 _lolighter.Light();
             };
         }
+
     }
 }

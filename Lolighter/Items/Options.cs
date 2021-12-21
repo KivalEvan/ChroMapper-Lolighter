@@ -2,8 +2,15 @@
 {
     static class Options
     {
-        public static float ColorOffset { set; get; } = 0;
-        public static float ColorSwap { set; get; } = 4;
+        private static float colorOffset = 0.0f;
+        private static float colorSwap = 4.0f;
+
+        public static float downlightSpeed = 0.5f;
+        public static float downlightSpamSpeed = 0.25f;
+        public static float downlightOnSpeed = 5;
+
+        public static float ColorOffset { set => colorOffset = value > 0.0f ? value : 0.0f; get => colorOffset; }
+        public static float ColorSwap { set => colorSwap = value > 1.0f ? value : 1.0f; get => colorSwap; }
         public static bool AllowBackStrobe { set; get; } = true;
         public static bool AllowNeonStrobe { set; get; } = true;
         public static bool AllowSideStrobe { set; get; } = true;
@@ -13,8 +20,9 @@
         public static bool NerfStrobes { set; get; } = false;
         public static bool OnlyCommonEvent { set; get; } = false;
         public static bool ClearLighting { set; get; } = false;
-        public static float DownlightSpeed { set; get; } = 0.5f;
-        public static float DownlightSpamSpeed { set; get; } = 0.25f;
-        public static float DownlightOnSpeed { set; get; } = 5;
+
+        public static float DownlightSpeed { set => downlightSpeed = value > 0.0f ? value : 0.0f; get => downlightSpeed; }
+        public static float DownlightSpamSpeed { set => downlightSpamSpeed = value > 0.0f ? value : 0.0f; get => downlightSpamSpeed; }
+        public static float DownlightOnSpeed { set => downlightOnSpeed = value > 1.0f ? value : 1.0f; get => downlightOnSpeed; }
     }
 }

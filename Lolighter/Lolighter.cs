@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine.SceneManagement;
@@ -63,6 +62,18 @@ namespace Lolighter
         {
             string environmentName = _beatSaberSongContainer.Song.EnvironmentName;
             List<MapEvent> events = Methods.Light.CreateLight(_notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList(), environmentName);
+            // TODO: this should only remove lighting
+            if (Items.Options.ClearLighting)
+            {
+                List<MapEvent> oldEvents = _eventsContainer.LoadedObjects.Cast<MapEvent>().ToList();
+                foreach (var ev in oldEvents)
+                {
+                    if (Items.Utils.EnvironmentLight.IsLightingEvent(ev))
+                    {
+                        _eventsContainer.DeleteObject(ev);
+                    }
+                }
+            }
             foreach (var ev in events)
             {
                 _eventsContainer.SpawnObject(ev);
