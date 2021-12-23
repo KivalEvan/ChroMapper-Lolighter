@@ -165,22 +165,22 @@ namespace Lolighter.Methods
                 //Here we process Spin and Zoom
                 if (now == firstNote && time[1] == 0.0D && AllowSpinZoom) //If we are processing the first note, add spin + zoom to it.
                 {
-                    ev = new MapEvent(now, EventType.RotationAllTrackRings, 0);
+                    ev = new MapEvent(now + ColorOffset, EventType.RotationAllTrackRings, 0);
                     eventTempo.Add(ev);
-                    ev = new MapEvent(now, EventType.RotationSmallTrackRings, 0);
+                    ev = new MapEvent(now + ColorOffset, EventType.RotationSmallTrackRings, 0);
                     eventTempo.Add(ev);
                 }
                 else if (now >= ColorOffset + ColorSwap + offset && now > firstNote && AllowSpinZoom) //If we are reaching the next threshold of the timer
                 {
-                    ev = new MapEvent(offset, EventType.RotationAllTrackRings, 0); //Add a spin at timer.
+                    ev = new MapEvent(offset + ColorOffset, EventType.RotationAllTrackRings, 0); //Add a spin at timer.
                     eventTempo.Add(ev);
                     if (count == 0) //Only add zoom every 2 spin.
                     {
-                        ev = new MapEvent(offset, EventType.RotationSmallTrackRings, 0);
+                        ev = new MapEvent(offset + ColorOffset, EventType.RotationSmallTrackRings, 0);
                         eventTempo.Add(ev);
                         if (AllowBoostColor)
                         {
-                            ev = new MapEvent(offset, EventType.LightBoost, boostFlipFlop ? 1 : 0);
+                            ev = new MapEvent(offset + ColorOffset, EventType.LightBoost, boostFlipFlop ? 1 : 0);
                             eventTempo.Add(ev);
                             boostFlipFlop = !boostFlipFlop;
                         }
