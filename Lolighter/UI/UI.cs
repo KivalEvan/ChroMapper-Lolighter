@@ -126,7 +126,7 @@ namespace Lolighter.UserInterface
         }
 
         // i ended up copying Top_Cat's CM-JS UI helper, too useful to make my own tho
-        public void AddButton(Transform parent, string title, string text, Vector2 pos, UnityAction onClick, Vector2? size = null)
+        private void AddButton(Transform parent, string title, string text, Vector2 pos, UnityAction onClick, Vector2? size = null)
         {
             var button = Object.Instantiate(PersistentUI.Instance.ButtonPrefab, parent);
             MoveTransform(button.transform, size?.x ?? 60, size?.y ?? 25, 0.5f, 1, pos.x, pos.y);
@@ -138,7 +138,7 @@ namespace Lolighter.UserInterface
             button.Text.enableAutoSizing = false;
             button.Text.fontSize = 12;
         }
-        public void AddLabel(Transform parent, string title, string text, Vector2 pos, Vector2? size = null)
+        private void AddLabel(Transform parent, string title, string text, Vector2 pos, Vector2? size = null)
         {
             var entryLabel = new GameObject(title + " Label", typeof(TextMeshProUGUI));
             var rectTransform = ((RectTransform)entryLabel.transform);
