@@ -221,6 +221,20 @@ namespace Lolighter.Methods
                                 ev = new MapEvent(now + 0.25f, EventType.LightBottomBackSideLasers, 0);
                                 eventTempo.Add(ev);
                             }
+                            if (pattern.Contains(EventType.LightLeftExtraLight) && AllowExtraStrobe) //Extra Light
+                            {
+                                ev = new MapEvent(now + 0.25f, EventType.LightLeftExtraLight, 0);
+                                eventTempo.Add(ev);
+                                ev = new MapEvent(now + 0.25f, EventType.LightRightExtraLight, 0);
+                                eventTempo.Add(ev);
+                            }
+                            if (pattern.Contains(EventType.LightLeftExtra2Light) && AllowExtra2Strobe) //Extra2 Light
+                            {
+                                ev = new MapEvent(now + 0.25f, EventType.LightLeftExtra2Light, 0);
+                                eventTempo.Add(ev);
+                                ev = new MapEvent(now + 0.25f, EventType.LightRightExtra2Light, 0);
+                                eventTempo.Add(ev);
+                            }
                         }
                         else
                         {
@@ -239,6 +253,20 @@ namespace Lolighter.Methods
                                 ev = new MapEvent(now - (now - last) / 2, EventType.LightBottomBackSideLasers, 0);
                                 eventTempo.Add(ev);
                             }
+                            if (pattern.Contains(EventType.LightLeftExtraLight) && AllowExtraStrobe) //Extra Light
+                            {
+                                ev = new MapEvent(now - (now - last) / 2, EventType.LightLeftExtraLight, 0);
+                                eventTempo.Add(ev);
+                                ev = new MapEvent(now - (now - last) / 2, EventType.LightRightExtraLight, 0);
+                                eventTempo.Add(ev);
+                            }
+                            if (pattern.Contains(EventType.LightLeftExtra2Light) && AllowExtra2Strobe) //Extra2 Light
+                            {
+                                ev = new MapEvent(now - (now - last) / 2, EventType.LightLeftExtra2Light, 0);
+                                eventTempo.Add(ev);
+                                ev = new MapEvent(now - (now - last) / 2, EventType.LightRightExtra2Light, 0);
+                                eventTempo.Add(ev);
+                            }
                         }
                     }
 
@@ -250,6 +278,24 @@ namespace Lolighter.Methods
 
                     ev = new MapEvent(now, EventType.LightTrackRingNeons, color); //Track Ring Neons
                     eventTempo.Add(ev);
+
+                    if (pattern.Contains(EventType.LightLeftExtraLight))
+                    {
+                        ev = new MapEvent(now, EventType.LightLeftExtraLight, color);
+                        eventTempo.Add(ev);
+
+                        ev = new MapEvent(now, EventType.LightRightExtraLight, color);
+                        eventTempo.Add(ev);
+                    }
+
+                    if (pattern.Contains(EventType.LightLeftExtra2Light))
+                    {
+                        ev = new MapEvent(now, EventType.LightLeftExtra2Light, color);
+                        eventTempo.Add(ev);
+
+                        ev = new MapEvent(now, EventType.LightRightExtra2Light, color);
+                        eventTempo.Add(ev);
+                    }
 
                     last = now;
                 }

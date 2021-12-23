@@ -17,15 +17,20 @@ namespace Lolighter.Methods
             // Automatically set on Backlight during long period of nothing
             // Remove spin/zoom spam
 
-            // Sort the list
-            light.Sort((x, y) => x.Time.CompareTo(y.Time));
+            // Sort the list (it's already sorted so let's not)
+            //light.Sort((x, y) => x.Time.CompareTo(y.Time));
 
             // Sort each of them per type
+            // why this isnt in dictionary? idk
             List<MapEvent> Back = new List<MapEvent>(light.Where(x => x.Type == EventType.LightBackTopLasers));
             List<MapEvent> Neon = new List<MapEvent>(light.Where(x => x.Type == EventType.LightTrackRingNeons));
             List<MapEvent> Side = new List<MapEvent>(light.Where(x => x.Type == EventType.LightBottomBackSideLasers));
             List<MapEvent> Left = new List<MapEvent>(light.Where(x => x.Type == EventType.LightLeftLasers));
             List<MapEvent> Right = new List<MapEvent>(light.Where(x => x.Type == EventType.LightRightLasers));
+            List<MapEvent> LeftExtra = new List<MapEvent>(light.Where(x => x.Type == EventType.LightLeftExtraLight));
+            List<MapEvent> RightExtra = new List<MapEvent>(light.Where(x => x.Type == EventType.LightRightExtraLight));
+            List<MapEvent> LeftExtra2 = new List<MapEvent>(light.Where(x => x.Type == EventType.LightLeftExtra2Light));
+            List<MapEvent> RightExtra2 = new List<MapEvent>(light.Where(x => x.Type == EventType.LightRightExtra2Light));
             List<MapEvent> LeftSpeed = new List<MapEvent>(light.Where(x => x.Type == EventType.RotatingLeftLasers));
             List<MapEvent> RightSpeed = new List<MapEvent>(light.Where(x => x.Type == EventType.RotatingRightLasers));
             List<MapEvent> Spin = new List<MapEvent>(light.Where(x => x.Type == EventType.RotationAllTrackRings));
@@ -37,6 +42,10 @@ namespace Lolighter.Methods
             Side = Mod(Side, DownlightSpeed);
             Left = Mod(Left, DownlightSpeed);
             Right = Mod(Right, DownlightSpeed);
+            LeftExtra = Mod(LeftExtra, DownlightSpeed);
+            RightExtra = Mod(RightExtra, DownlightSpeed);
+            LeftExtra2 = Mod(LeftExtra2, DownlightSpeed);
+            RightExtra2 = Mod(RightExtra2, DownlightSpeed);
 
             // Spin/Zoom, we want to remove spam
             Spin = Spam(Spin, DownlightSpamSpeed);
@@ -49,6 +58,10 @@ namespace Lolighter.Methods
             light.AddRange(Side);
             light.AddRange(Left);
             light.AddRange(Right);
+            light.AddRange(LeftExtra);
+            light.AddRange(RightExtra);
+            light.AddRange(LeftExtra2);
+            light.AddRange(RightExtra2);
             light.AddRange(LeftSpeed);
             light.AddRange(RightSpeed);
 

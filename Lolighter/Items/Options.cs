@@ -14,6 +14,8 @@
         public static bool AllowBackStrobe { set; get; } = true;
         public static bool AllowNeonStrobe { set; get; } = true;
         public static bool AllowSideStrobe { set; get; } = true;
+        public static bool AllowExtraStrobe { set; get; } = false;
+        public static bool AllowExtra2Strobe { set; get; } = false;
         public static bool AllowFade { set; get; } = true;
         public static bool AllowSpinZoom { set; get; } = true;
         public static bool AllowBoostColor { set; get; } = false;

@@ -51,12 +51,12 @@
             public const int LightRightLasers = 3;
             public const int LightBottomBackSideLasers = 4;
             public const int LightBoost = 5;
-            public const int LightLeftExtraLasers = 6;
-            public const int LightRightExtraLasers = 7;
+            public const int LightLeftExtraLight = 6;
+            public const int LightRightExtraLight = 7;
             public const int RotationAllTrackRings = 8;
             public const int RotationSmallTrackRings = 9;
-            public const int LightLeftExtraLight = 10;
-            public const int LightRightExtraLight = 11;
+            public const int LightLeftExtra2Light = 10;
+            public const int LightRightExtra2Light = 11;
             public const int RotatingLeftLasers = 12;
             public const int RotatingRightLasers = 13;
             public const int RotationEarlyLane = 14;
