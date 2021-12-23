@@ -32,7 +32,9 @@ namespace Lolighter.Methods
             float nextfloat = 0;
             bool firstSlider = false;
             BeatmapNote nextSlider = new BeatmapNote(0, 0, 0, 0, 0);
-            List<int> sliderLight = new List<int>() { 0, 1, 4 };
+            List<int> sliderLight = OnlyCommonEvent ? EnvironmentLight.LightableList() : EnvironmentLight.LightableList(environment);
+            sliderLight.Remove(2);
+            sliderLight.Remove(3);
             int sliderIndex = 0;
             float sliderNoteCount = 0;
             bool wasSlider = false;

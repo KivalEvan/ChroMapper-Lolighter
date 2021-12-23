@@ -7,8 +7,9 @@ A well-known autolighter comes to ChroMapper as a plugin. New and updated featur
 ### Features
 
 -   Autolighting
-    -   Downlighting option
+-   Downlighting
 
 ### Credits
 
 [Lolighter](https://github.com/Loloppe/Lolighter) by [Loloppe](https://github.com/Loloppe)
+[Top_Cat] for UI help
