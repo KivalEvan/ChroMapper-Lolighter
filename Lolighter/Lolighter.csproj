@@ -69,8 +69,12 @@
     <Compile Include="Items\Utils.cs" />
     <Compile Include="Items\Options.cs" />
     <Compile Include="Items\Enum.cs" />
-    <Compile Include="Methods\Downlight.cs" />
+    <Compile Include="Methods\Bombs.cs" />
+    <Compile Include="Methods\Inverted.cs" />
     <Compile Include="Methods\Light.cs" />
+    <Compile Include="Methods\Loloppe.cs" />
+    <Compile Include="Methods\Sliders.cs" />
+    <Compile Include="Methods\Downlight.cs" />
     <Compile Include="Lolighter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\UI.cs" />

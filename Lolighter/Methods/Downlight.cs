@@ -42,19 +42,19 @@ namespace Lolighter.Methods
             List<MapEvent> Extra2 = new List<MapEvent>(light.Where(x => x.Type == EventType.ExtraEvent2));
 
             // Send them to the algorithm
-            Back = Mod(Back, Options.DownlightSpeed);
-            Neon = Mod(Neon, Options.DownlightSpeed);
-            Side = Mod(Side, Options.DownlightSpeed);
-            Left = Mod(Left, Options.DownlightSpeed);
-            Right = Mod(Right, Options.DownlightSpeed);
-            LeftExtra = Mod(LeftExtra, Options.DownlightSpeed);
-            RightExtra = Mod(RightExtra, Options.DownlightSpeed);
-            LeftExtra2 = Mod(LeftExtra2, Options.DownlightSpeed);
-            RightExtra2 = Mod(RightExtra2, Options.DownlightSpeed);
+            Back = Mod(Back, Options.Downlight.Speed);
+            Neon = Mod(Neon, Options.Downlight.Speed);
+            Side = Mod(Side, Options.Downlight.Speed);
+            Left = Mod(Left, Options.Downlight.Speed);
+            Right = Mod(Right, Options.Downlight.Speed);
+            LeftExtra = Mod(LeftExtra, Options.Downlight.Speed);
+            RightExtra = Mod(RightExtra, Options.Downlight.Speed);
+            LeftExtra2 = Mod(LeftExtra2, Options.Downlight.Speed);
+            RightExtra2 = Mod(RightExtra2, Options.Downlight.Speed);
 
             // Spin/Zoom, we want to remove spam
-            Spin = Spam(Spin, Options.DownlightSpamSpeed);
-            Zoom = Spam(Zoom, Options.DownlightSpamSpeed);
+            Spin = Spam(Spin, Options.Downlight.SpamSpeed);
+            Zoom = Spam(Zoom, Options.Downlight.SpamSpeed);
 
             // Put back together the list
             light = new List<MapEvent>();
@@ -73,7 +73,7 @@ namespace Lolighter.Methods
             light.AddRange(Extra2);
 
             // Turn On an Event if no light for a while.
-            light = On(light, Options.DownlightOnSpeed);
+            light = On(light, Options.Downlight.OnSpeed);
 
             // Put back together the list
             light.AddRange(Boost);

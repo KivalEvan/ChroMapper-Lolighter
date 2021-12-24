@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using static Lolighter.Items.Enum;
+using Options = Lolighter.Items.Options;
 
 namespace Lolighter.Methods
 {
     static class Sliders
     {
-        static public List<BeatmapNote> MakeSliders(List<BeatmapNote> noteTemp, float Limiter, bool IsLimited)
+        static public List<BeatmapNote> MakeSliders(List<BeatmapNote> noteTemp)
         {
             List<BeatmapNote> newNote = new List<BeatmapNote>();
             List<BeatmapNote> toRemove = new List<BeatmapNote>();
@@ -31,12 +32,12 @@ namespace Lolighter.Methods
 
                 foreach (BeatmapNote temp in noteTemp) //For each note
                 {
-                    if (n.Time == temp.Time && n.Type == temp.Type && n.CutDirection == temp.CutDirection && !IsLimited)
+                    if (n.Time == temp.Time && n.Type == temp.Type && n.CutDirection == temp.CutDirection && !Options.Modifier.IsLimited)
                     {
                         //Loloppe notes
                         break;
                     }
-                    else if (((n.Time - temp.Time < Limiter * 2 && n.Time - temp.Time > 0) || (temp.Time - n.Time < Limiter * 2 && temp.Time - n.Time > 0)) && temp.Type == n.Type)
+                    else if (((n.Time - temp.Time < Options.Modifier.Limiter * 2 && n.Time - temp.Time > 0) || (temp.Time - n.Time < Options.Modifier.Limiter * 2 && temp.Time - n.Time > 0)) && temp.Type == n.Type)
                     {
                         found = true;
                         break;

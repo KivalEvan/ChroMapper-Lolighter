@@ -63,7 +63,7 @@ namespace Lolighter
             string environmentName = _beatSaberSongContainer.Song.EnvironmentName;
             List<MapEvent> newEvents = Methods.Light.CreateLight(_notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList(), environmentName);
             // TODO: this should only remove lighting
-            if (Options.ClearLighting)
+            if (Options.Light.ClearLighting)
             {
                 List<MapEvent> oldEvents = _eventsContainer.LoadedObjects.Cast<MapEvent>().ToList();
                 foreach (var ev in oldEvents)
@@ -94,6 +94,66 @@ namespace Lolighter
             foreach (var ev in newEvents)
             {
                 _eventsContainer.SpawnObject(ev);
+            }
+        }
+
+        public void Bombs()
+        {
+            List<BeatmapNote> oldNotes = _notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList();
+            List<BeatmapNote> newNotes = Methods.Bombs.CreateBomb(_notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList());
+            foreach (var n in oldNotes)
+            {
+                _notesContainer.DeleteObject(n);
+
+            }
+            foreach (var n in newNotes)
+            {
+                _notesContainer.SpawnObject(n);
+            }
+        }
+
+        public void Inverted()
+        {
+            List<BeatmapNote> oldNotes = _notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList();
+            List<BeatmapNote> newNotes = Methods.Inverted.MakeInverted(_notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList());
+            foreach (var n in oldNotes)
+            {
+                _notesContainer.DeleteObject(n);
+
+            }
+            foreach (var n in newNotes)
+            {
+                _notesContainer.SpawnObject(n);
+            }
+        }
+
+        public void Loloppe()
+        {
+            List<BeatmapNote> oldNotes = _notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList();
+            List<BeatmapNote> newNotes = Methods.Loloppe.LoloppeGen(_notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList());
+            foreach (var n in oldNotes)
+            {
+                _notesContainer.DeleteObject(n);
+
+            }
+            foreach (var n in newNotes)
+            {
+                _notesContainer.SpawnObject(n);
+            }
+        }
+
+        public void Sliders()
+        {
+            List<BeatmapNote> oldNotes = _notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList();
+            List<BeatmapNote> newNotes = Methods.Sliders.MakeSliders(_notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList());
+            foreach (var n in oldNotes)
+            {
+                _notesContainer.DeleteObject(n);
+
+            }
+            foreach (var n in newNotes)
+            {
+                _notesContainer.SpawnObject(n);
             }
         }
 

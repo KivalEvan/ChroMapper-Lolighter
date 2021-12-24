@@ -5,7 +5,7 @@ using static Lolighter.Items.Enum;
 
 namespace Lolighter.Methods
 {
-    static class Bomb
+    static class Bombs
     {
         public static List<BeatmapNote> CreateBomb(List<BeatmapNote> noteTemp)
         {

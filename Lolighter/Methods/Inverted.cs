@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using static Lolighter.Items.Enum;
+using Options = Lolighter.Items.Options;
 
 namespace Lolighter.Methods
 {
     static class Inverted
     {
-        static public List<BeatmapNote> MakeInverted(List<BeatmapNote> noteTemp, float Limiter, bool IsLimited)
+        static public List<BeatmapNote> MakeInverted(List<BeatmapNote> noteTemp)
         {
             BeatmapNote n;
             bool found;
@@ -24,12 +25,12 @@ namespace Lolighter.Methods
 
                 foreach (BeatmapNote temp in noteTemp) //For each note
                 {
-                    if (n.Time == temp.Time && n.Type == temp.Type && n.CutDirection == temp.CutDirection && !IsLimited)
+                    if (n.Time == temp.Time && n.Type == temp.Type && n.CutDirection == temp.CutDirection && !Options.Modifier.IsLimited)
                     {
                         //Loloppe notes
                         break;
                     }
-                    if (((n.Time - temp.Time < Limiter && n.Time - temp.Time > 0) || (temp.Time - n.Time < Limiter && temp.Time - n.Time > 0)) && temp.Type == n.Type)
+                    if (((n.Time - temp.Time < Options.Modifier.Limiter && n.Time - temp.Time > 0) || (temp.Time - n.Time < Options.Modifier.Limiter && temp.Time - n.Time > 0)) && temp.Type == n.Type)
                     {
                         found = true;
                         break;
