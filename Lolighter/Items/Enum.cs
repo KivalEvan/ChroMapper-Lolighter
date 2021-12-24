@@ -61,8 +61,8 @@
             public const int RotatingRightLasers = 13;
             public const int RotationEarlyLane = 14;
             public const int RotationLateLane = 15;
-            public const int ExtraLeftEvent = 16;
-            public const int ExtraRightEvent = 17;
+            public const int ExtraEvent1 = 16;
+            public const int ExtraEvent2 = 17;
             public const int BPMChange = 100;
         }
 

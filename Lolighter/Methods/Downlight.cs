@@ -21,12 +21,13 @@ namespace Lolighter.Methods
             //light.Sort((x, y) => x.Time.CompareTo(y.Time));
 
             // Sort each of them per type
-            // why this isnt in dictionary? idk
+            // TODO: why this isnt in dictionary? idk but i need to do that
             List<MapEvent> Back = new List<MapEvent>(light.Where(x => x.Type == EventType.LightBackTopLasers));
             List<MapEvent> Neon = new List<MapEvent>(light.Where(x => x.Type == EventType.LightTrackRingNeons));
             List<MapEvent> Side = new List<MapEvent>(light.Where(x => x.Type == EventType.LightBottomBackSideLasers));
             List<MapEvent> Left = new List<MapEvent>(light.Where(x => x.Type == EventType.LightLeftLasers));
             List<MapEvent> Right = new List<MapEvent>(light.Where(x => x.Type == EventType.LightRightLasers));
+            List<MapEvent> Boost = new List<MapEvent>(light.Where(x => x.Type == EventType.LightBoost));
             List<MapEvent> LeftExtra = new List<MapEvent>(light.Where(x => x.Type == EventType.LightLeftExtraLight));
             List<MapEvent> RightExtra = new List<MapEvent>(light.Where(x => x.Type == EventType.LightRightExtraLight));
             List<MapEvent> LeftExtra2 = new List<MapEvent>(light.Where(x => x.Type == EventType.LightLeftExtra2Light));
@@ -35,6 +36,10 @@ namespace Lolighter.Methods
             List<MapEvent> RightSpeed = new List<MapEvent>(light.Where(x => x.Type == EventType.RotatingRightLasers));
             List<MapEvent> Spin = new List<MapEvent>(light.Where(x => x.Type == EventType.RotationAllTrackRings));
             List<MapEvent> Zoom = new List<MapEvent>(light.Where(x => x.Type == EventType.RotationSmallTrackRings));
+            List<MapEvent> RotationEarly = new List<MapEvent>(light.Where(x => x.Type == EventType.RotationEarlyLane));
+            List<MapEvent> RotationLate = new List<MapEvent>(light.Where(x => x.Type == EventType.RotationLateLane));
+            List<MapEvent> Extra1 = new List<MapEvent>(light.Where(x => x.Type == EventType.ExtraEvent1));
+            List<MapEvent> Extra2 = new List<MapEvent>(light.Where(x => x.Type == EventType.ExtraEvent2));
 
             // Send them to the algorithm
             Back = Mod(Back, DownlightSpeed);
@@ -64,16 +69,21 @@ namespace Lolighter.Methods
             light.AddRange(RightExtra2);
             light.AddRange(LeftSpeed);
             light.AddRange(RightSpeed);
+            light.AddRange(Extra1);
+            light.AddRange(Extra2);
 
             // Turn On an Event if no light for a while.
             light = On(light, DownlightOnSpeed);
 
             // Put back together the list
+            light.AddRange(Boost);
             light.AddRange(Spin);
             light.AddRange(Zoom);
+            light.AddRange(RotationEarly);
+            light.AddRange(RotationLate);
 
-            // Sort the list
-            light.Sort((x, y) => x.Time.CompareTo(y.Time));
+            // Sort the list no need to it'll be sorted as it is placed
+            //light.Sort((x, y) => x.Time.CompareTo(y.Time));
 
             return light;
         }
