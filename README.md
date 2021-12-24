@@ -2,7 +2,7 @@
 
 ## ChroMapper plugin
 
-A well-known autolighter comes to ChroMapper as a plugin. New and updated features including boost light placement.
+A well-known autolighter comes to ChroMapper as a plugin. New and updated features including boost light placement and extended event for specific environment.
 
 ### Features
 
