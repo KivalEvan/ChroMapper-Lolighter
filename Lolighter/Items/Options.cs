@@ -24,9 +24,9 @@
 
         public static class Downlight
         {
-            public static float speed = 0.5f;
-            public static float spamSpeed = 0.25f;
-            public static float onSpeed = 5.0f;
+            private static float speed = 0.5f;
+            private static float spamSpeed = 0.25f;
+            private static float onSpeed = 5.0f;
 
 
             public static float Speed { set => speed = value > 0.0f ? value : 0.0f; get => speed; }
@@ -36,10 +36,12 @@
 
         public static class Modifier
         {
-            public static float limiter = 0.25f;
+            private static float limiter = 0.25f;
+            private static float sliderPrecision = 0.03125f;
 
             public static bool IsLimited { set; get; } = true;
             public static float Limiter { set => limiter = value > 0.0f ? value : 0.0f; get => limiter; }
+            public static float SliderPrecision { set => sliderPrecision = value > 0.0f ? 1 / value : 0.03125f; get => 1 / sliderPrecision; }
         }
     }
 }

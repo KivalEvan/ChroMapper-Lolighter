@@ -167,6 +167,14 @@ namespace Lolighter.UserInterface
                     Options.Modifier.Limiter = res;
                 }
             });
+            AddTextInput(_lolighterMenu.transform, "Slider Precision", "Slider Prec.", new Vector2(-120, -155), Options.Modifier.SliderPrecision.ToString(), (value) =>
+            {
+                float res;
+                if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture.NumberFormat, out res))
+                {
+                    Options.Modifier.SliderPrecision = res;
+                }
+            });
 
             _lolighterMenu.SetActive(false);
             _extensionBtn.Click = () =>

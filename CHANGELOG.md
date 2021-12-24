@@ -13,6 +13,7 @@
 ### Changed
 
 -   UI tweaks
+-   Sliders method uses slider precision instead of changing spacing after
 
 ### Fixed
 
