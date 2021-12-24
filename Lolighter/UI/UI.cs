@@ -89,24 +89,44 @@ namespace Lolighter.UserInterface
             AddLabel(_lolighterMenu.transform, "Color Swap", "Color Swap", new Vector2(60, -15));
             AddTextInput(_lolighterMenu.transform, "Color Swap Speed", "Speed (in beat)", new Vector2(60, -35), ColorSwap.ToString(), (value) =>
             {
-                ColorSwap = float.Parse(value, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                float res;
+                if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture.NumberFormat, out res))
+                {
+                    ColorSwap = res;
+                }
             });
             AddTextInput(_lolighterMenu.transform, "Color Offset", "Offset (in beat)", new Vector2(60, -65), ColorOffset.ToString(), (value) =>
             {
-                ColorOffset = float.Parse(value, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                float res;
+                if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture.NumberFormat, out res))
+                {
+                    ColorOffset = res;
+                }
             });
             AddLabel(_lolighterMenu.transform, "Downlight", "Downlight", new Vector2(60, -95));
             AddTextInput(_lolighterMenu.transform, "Downlight Speed", "Speed (in beat)", new Vector2(60, -110), DownlightSpeed.ToString(), (value) =>
             {
-                DownlightSpeed = float.Parse(value, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                float res;
+                if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture.NumberFormat, out res))
+                {
+                    DownlightSpeed = res;
+                }
             });
             AddTextInput(_lolighterMenu.transform, "Downlight Spam", "Spam (in beat)", new Vector2(60, -140), DownlightSpamSpeed.ToString(), (value) =>
             {
-                DownlightSpamSpeed = float.Parse(value, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                float res;
+                if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture.NumberFormat, out res))
+                {
+                    DownlightSpamSpeed = res;
+                }
             });
             AddTextInput(_lolighterMenu.transform, "Downlight On", "Turn On (in beat)", new Vector2(60, -170), DownlightOnSpeed.ToString(), (value) =>
             {
-                DownlightOnSpeed = float.Parse(value, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                float res;
+                if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture.NumberFormat, out res))
+                {
+                    DownlightOnSpeed = res;
+                }
             });
 
             AddButton(_lolighterMenu.transform, "Lolight", "Light", new Vector2(15, -205), () =>
@@ -126,10 +146,11 @@ namespace Lolighter.UserInterface
         }
 
         // i ended up copying Top_Cat's CM-JS UI helper, too useful to make my own tho
-        private void AddButton(Transform parent, string title, string text, Vector2 pos, UnityAction onClick, Vector2? size = null)
+        // after askin TC if it's one of the only way, he let me use this
+        private void AddButton(Transform parent, string title, string text, Vector2 pos, UnityAction onClick)
         {
             var button = Object.Instantiate(PersistentUI.Instance.ButtonPrefab, parent);
-            MoveTransform(button.transform, size?.x ?? 60, size?.y ?? 25, 0.5f, 1, pos.x, pos.y);
+            MoveTransform(button.transform, 60, 25, 0.5f, 1, pos.x, pos.y);
 
             button.name = title;
             button.Button.onClick.AddListener(onClick);
@@ -144,7 +165,7 @@ namespace Lolighter.UserInterface
             var rectTransform = ((RectTransform)entryLabel.transform);
             rectTransform.SetParent(parent);
 
-            MoveTransform(rectTransform, size?.x ?? 110, size?.y ?? 24, 0.5f, 1, pos.x, pos.y);
+            MoveTransform(rectTransform, 110, 24, 0.5f, 1, pos.x, pos.y);
             var textComponent = entryLabel.GetComponent<TextMeshProUGUI>();
 
             textComponent.name = title;
@@ -154,13 +175,13 @@ namespace Lolighter.UserInterface
             textComponent.text = text;
         }
 
-        private void AddTextInput(Transform parent, string title, string text, Vector2 pos, string value, UnityAction<string> onChange, Vector2? size = null)
+        private void AddTextInput(Transform parent, string title, string text, Vector2 pos, string value, UnityAction<string> onChange)
         {
             var entryLabel = new GameObject(title + " Label", typeof(TextMeshProUGUI));
             var rectTransform = ((RectTransform)entryLabel.transform);
             rectTransform.SetParent(parent);
 
-            MoveTransform(rectTransform, size?.x ?? 100, size?.y ?? 16, 0.5f, 1, pos.x, pos.y + 5);
+            MoveTransform(rectTransform, 100, 16, 0.5f, 1, pos.x, pos.y + 5);
             var textComponent = entryLabel.GetComponent<TextMeshProUGUI>();
 
             textComponent.name = title;
@@ -170,7 +191,7 @@ namespace Lolighter.UserInterface
             textComponent.text = text;
 
             var textInput = Object.Instantiate(PersistentUI.Instance.TextInputPrefab, parent);
-            MoveTransform(textInput.transform, size?.x ?? 100, size?.y ?? 20, 0.5f, 1, pos.x, pos.y - 10);
+            MoveTransform(textInput.transform, 100, 20, 0.5f, 1, pos.x, pos.y - 10);
             textInput.GetComponent<Image>().pixelsPerUnitMultiplier = 3;
             textInput.InputField.text = value;
             textInput.InputField.onFocusSelectAll = false;
@@ -180,12 +201,12 @@ namespace Lolighter.UserInterface
             textInput.InputField.onValueChanged.AddListener(onChange);
         }
 
-        private void AddCheckbox(Transform parent, string title, string text, Vector2 pos, bool value, UnityAction<bool> onClick, Vector2? size = null)
+        private void AddCheckbox(Transform parent, string title, string text, Vector2 pos, bool value, UnityAction<bool> onClick)
         {
             var entryLabel = new GameObject(title + " Label", typeof(TextMeshProUGUI));
             var rectTransform = ((RectTransform)entryLabel.transform);
             rectTransform.SetParent(parent);
-            MoveTransform(rectTransform, size?.x ?? 80, size?.y ?? 16, 0.5f, 1, pos.x + 10, pos.y + 6);
+            MoveTransform(rectTransform, 80, 16, 0.5f, 1, pos.x + 10, pos.y + 6);
             var textComponent = entryLabel.GetComponent<TextMeshProUGUI>();
 
             textComponent.name = title;
@@ -196,7 +217,7 @@ namespace Lolighter.UserInterface
 
             var original = GameObject.Find("Strobe Generator").GetComponentInChildren<Toggle>(true);
             var toggleObject = Object.Instantiate(original, parent.transform);
-            MoveTransform(toggleObject.transform, size?.x ?? 100, size?.y ?? 25, 0.5f, 1, pos.x, pos.y);
+            MoveTransform(toggleObject.transform, 100, 25, 0.5f, 1, pos.x, pos.y);
 
             var toggleComponent = toggleObject.GetComponent<Toggle>();
             var colorBlock = toggleComponent.colors;
