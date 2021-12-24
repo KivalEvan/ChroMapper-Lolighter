@@ -1,7 +1,7 @@
 ﻿using Lolighter.Items;
 using System.Collections.Generic;
 using System.Linq;
-using static Lolighter.Items.Options;
+using Options = Lolighter.Items.Options;
 using EventLightValue = Lolighter.Items.Enum.EventLightValue;
 using EventType = Lolighter.Items.Enum.EventType;
 
@@ -42,19 +42,19 @@ namespace Lolighter.Methods
             List<MapEvent> Extra2 = new List<MapEvent>(light.Where(x => x.Type == EventType.ExtraEvent2));
 
             // Send them to the algorithm
-            Back = Mod(Back, DownlightSpeed);
-            Neon = Mod(Neon, DownlightSpeed);
-            Side = Mod(Side, DownlightSpeed);
-            Left = Mod(Left, DownlightSpeed);
-            Right = Mod(Right, DownlightSpeed);
-            LeftExtra = Mod(LeftExtra, DownlightSpeed);
-            RightExtra = Mod(RightExtra, DownlightSpeed);
-            LeftExtra2 = Mod(LeftExtra2, DownlightSpeed);
-            RightExtra2 = Mod(RightExtra2, DownlightSpeed);
+            Back = Mod(Back, Options.DownlightSpeed);
+            Neon = Mod(Neon, Options.DownlightSpeed);
+            Side = Mod(Side, Options.DownlightSpeed);
+            Left = Mod(Left, Options.DownlightSpeed);
+            Right = Mod(Right, Options.DownlightSpeed);
+            LeftExtra = Mod(LeftExtra, Options.DownlightSpeed);
+            RightExtra = Mod(RightExtra, Options.DownlightSpeed);
+            LeftExtra2 = Mod(LeftExtra2, Options.DownlightSpeed);
+            RightExtra2 = Mod(RightExtra2, Options.DownlightSpeed);
 
             // Spin/Zoom, we want to remove spam
-            Spin = Spam(Spin, DownlightSpamSpeed);
-            Zoom = Spam(Zoom, DownlightSpamSpeed);
+            Spin = Spam(Spin, Options.DownlightSpamSpeed);
+            Zoom = Spam(Zoom, Options.DownlightSpamSpeed);
 
             // Put back together the list
             light = new List<MapEvent>();
@@ -73,7 +73,7 @@ namespace Lolighter.Methods
             light.AddRange(Extra2);
 
             // Turn On an Event if no light for a while.
-            light = On(light, DownlightOnSpeed);
+            light = On(light, Options.DownlightOnSpeed);
 
             // Put back together the list
             light.AddRange(Boost);

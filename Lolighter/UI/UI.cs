@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using static Lolighter.Items.Options;
+using Options = Lolighter.Items.Options;
 
 namespace Lolighter.UserInterface
 {
@@ -44,88 +44,88 @@ namespace Lolighter.UserInterface
             image.color = new Color(0.24f, 0.24f, 0.24f);
 
             AddLabel(_lolighterMenu.transform, "Strobes", "Strobes", new Vector2(-60, -15));
-            AddCheckbox(_lolighterMenu.transform, "Allow Back Strobe", "Back/Top", new Vector2(-60, -35), AllowBackStrobe, (check) =>
+            AddCheckbox(_lolighterMenu.transform, "Allow Back Strobe", "Back/Top", new Vector2(-60, -35), Options.AllowBackStrobe, (check) =>
             {
-                AllowBackStrobe = check;
+                Options.AllowBackStrobe = check;
             });
-            AddCheckbox(_lolighterMenu.transform, "Allow Neon Strobe", "Neon Ring", new Vector2(-60, -50), AllowNeonStrobe, (check) =>
+            AddCheckbox(_lolighterMenu.transform, "Allow Neon Strobe", "Neon Ring", new Vector2(-60, -50), Options.AllowNeonStrobe, (check) =>
             {
-                AllowNeonStrobe = check;
+                Options.AllowNeonStrobe = check;
             });
-            AddCheckbox(_lolighterMenu.transform, "Allow Side Strobe", "Bot/Back/Side", new Vector2(-60, -65), AllowSideStrobe, (check) =>
+            AddCheckbox(_lolighterMenu.transform, "Allow Side Strobe", "Bot/Back/Side", new Vector2(-60, -65), Options.AllowSideStrobe, (check) =>
             {
-                AllowSideStrobe = check;
+                Options.AllowSideStrobe = check;
             });
-            AddCheckbox(_lolighterMenu.transform, "Allow Extra Strobe", "Extra", new Vector2(-60, -80), AllowExtraStrobe, (check) =>
+            AddCheckbox(_lolighterMenu.transform, "Allow Extra Strobe", "Extra", new Vector2(-60, -80), Options.AllowExtraStrobe, (check) =>
             {
-                AllowExtraStrobe = check;
+                Options.AllowExtraStrobe = check;
             });
-            AddCheckbox(_lolighterMenu.transform, "Allow Extra2 Strobe", "Extra2", new Vector2(-60, -95), AllowExtra2Strobe, (check) =>
+            AddCheckbox(_lolighterMenu.transform, "Allow Extra2 Strobe", "Extra2", new Vector2(-60, -95), Options.AllowExtra2Strobe, (check) =>
             {
-                AllowExtra2Strobe = check;
+                Options.AllowExtra2Strobe = check;
             });
             AddLabel(_lolighterMenu.transform, "Other Features", "Other Features", new Vector2(-60, -110));
-            AddCheckbox(_lolighterMenu.transform, "Allow Fade", "Use Fade", new Vector2(-60, -130), AllowFade, (check) =>
+            AddCheckbox(_lolighterMenu.transform, "Allow Fade", "Use Fade", new Vector2(-60, -130), Options.AllowFade, (check) =>
             {
-                AllowFade = check;
+                Options.AllowFade = check;
             });
-            AddCheckbox(_lolighterMenu.transform, "Allow Spin Zoom", "Spin/Zoom", new Vector2(-60, -145), AllowSpinZoom, (check) =>
+            AddCheckbox(_lolighterMenu.transform, "Allow Spin Zoom", "Spin/Zoom", new Vector2(-60, -145), Options.AllowSpinZoom, (check) =>
             {
-                AllowSpinZoom = check;
+                Options.AllowSpinZoom = check;
             });
-            AddCheckbox(_lolighterMenu.transform, "Allow Boost", "Use Boost", new Vector2(-60, -160), AllowBoostColor, (check) =>
+            AddCheckbox(_lolighterMenu.transform, "Allow Boost", "Use Boost", new Vector2(-60, -160), Options.AllowBoostColor, (check) =>
             {
-                AllowBoostColor = check;
+                Options.AllowBoostColor = check;
             });
-            AddCheckbox(_lolighterMenu.transform, "Only Common Event", "Only Common Event", new Vector2(-60, -175), OnlyCommonEvent, (check) =>
+            AddCheckbox(_lolighterMenu.transform, "Only Common Event", "Only Common Event", new Vector2(-60, -175), Options.OnlyCommonEvent, (check) =>
             {
-                OnlyCommonEvent = check;
+                Options.OnlyCommonEvent = check;
             });
-            AddCheckbox(_lolighterMenu.transform, "Clear Lighting", "Clear Lighting", new Vector2(-60, -210), ClearLighting, (check) =>
+            AddCheckbox(_lolighterMenu.transform, "Clear Lighting", "Clear Lighting", new Vector2(-60, -210), Options.ClearLighting, (check) =>
             {
-                ClearLighting = check;
+                Options.ClearLighting = check;
             });
 
             AddLabel(_lolighterMenu.transform, "Color Swap", "Color Swap", new Vector2(60, -15));
-            AddTextInput(_lolighterMenu.transform, "Color Swap Speed", "Speed (in beat)", new Vector2(60, -35), ColorSwap.ToString(), (value) =>
+            AddTextInput(_lolighterMenu.transform, "Color Swap Speed", "Speed (in beat)", new Vector2(60, -35), Options.ColorSwap.ToString(), (value) =>
             {
                 float res;
                 if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture.NumberFormat, out res))
                 {
-                    ColorSwap = res;
+                    Options.ColorSwap = res;
                 }
             });
-            AddTextInput(_lolighterMenu.transform, "Color Offset", "Offset (in beat)", new Vector2(60, -65), ColorOffset.ToString(), (value) =>
+            AddTextInput(_lolighterMenu.transform, "Color Offset", "Offset (in beat)", new Vector2(60, -65), Options.ColorOffset.ToString(), (value) =>
             {
                 float res;
                 if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture.NumberFormat, out res))
                 {
-                    ColorOffset = res;
+                    Options.ColorOffset = res;
                 }
             });
             AddLabel(_lolighterMenu.transform, "Downlight", "Downlight", new Vector2(60, -95));
-            AddTextInput(_lolighterMenu.transform, "Downlight Speed", "Speed (in beat)", new Vector2(60, -110), DownlightSpeed.ToString(), (value) =>
+            AddTextInput(_lolighterMenu.transform, "Downlight Speed", "Speed (in beat)", new Vector2(60, -110), Options.DownlightSpeed.ToString(), (value) =>
             {
                 float res;
                 if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture.NumberFormat, out res))
                 {
-                    DownlightSpeed = res;
+                    Options.DownlightSpeed = res;
                 }
             });
-            AddTextInput(_lolighterMenu.transform, "Downlight Spam", "Spam (in beat)", new Vector2(60, -140), DownlightSpamSpeed.ToString(), (value) =>
+            AddTextInput(_lolighterMenu.transform, "Downlight Spam", "Spam (in beat)", new Vector2(60, -140), Options.DownlightSpamSpeed.ToString(), (value) =>
             {
                 float res;
                 if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture.NumberFormat, out res))
                 {
-                    DownlightSpamSpeed = res;
+                    Options.DownlightSpamSpeed = res;
                 }
             });
-            AddTextInput(_lolighterMenu.transform, "Downlight On", "Turn On (in beat)", new Vector2(60, -170), DownlightOnSpeed.ToString(), (value) =>
+            AddTextInput(_lolighterMenu.transform, "Downlight On", "Turn On (in beat)", new Vector2(60, -170), Options.DownlightOnSpeed.ToString(), (value) =>
             {
                 float res;
                 if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture.NumberFormat, out res))
                 {
-                    DownlightOnSpeed = res;
+                    Options.DownlightOnSpeed = res;
                 }
             });
 

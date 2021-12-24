@@ -4,14 +4,13 @@ using System.Linq;
 using System.Security.Cryptography;
 using static Lolighter.Items.Enum;
 using static Lolighter.Items.Utils;
-using static Lolighter.Items.Options;
+using Options = Lolighter.Items.Options;
 
 // i might want to change/fix some of these algorithm
 namespace Lolighter.Methods
 {
     static class Light
     {
-
         static public List<MapEvent> CreateLight(List<BeatmapNote> noteTempo, string environment = "DefaultEnvironment")
         {
             float last = new float(); //Var to stop spin-stack and also used as time check.
@@ -32,14 +31,14 @@ namespace Lolighter.Methods
             float nextfloat = 0;
             bool firstSlider = false;
             BeatmapNote nextSlider = new BeatmapNote(0, 0, 0, 0, 0);
-            List<int> sliderLight = OnlyCommonEvent ? EnvironmentLight.LightableList() : EnvironmentLight.LightableList(environment);
+            List<int> sliderLight = Options.OnlyCommonEvent ? EnvironmentLight.LightableList() : EnvironmentLight.LightableList(environment);
             sliderLight.Remove(2);
             sliderLight.Remove(3);
             int sliderIndex = 0;
             float sliderNoteCount = 0;
             bool wasSlider = false;
             MapEvent ev;
-            List<int> pattern = OnlyCommonEvent ? EnvironmentLight.LightableList() : EnvironmentLight.LightableList(environment);
+            List<int> pattern = Options.OnlyCommonEvent ? EnvironmentLight.LightableList() : EnvironmentLight.LightableList(environment);
             int maxPattern = pattern.Count;
             int patternIndex = 0;
             int patternCount = 0;
@@ -47,7 +46,7 @@ namespace Lolighter.Methods
 
             void ResetTimer() //Pretty much reset everything necessary.
             {
-                if (AllowFade)
+                if (Options.AllowFade)
                 {
                     color = EventLightValue.BlueFlashFade; //Blue Fade
                 }
@@ -85,13 +84,13 @@ namespace Lolighter.Methods
             void TimerDuration() //Check the checkpoint
             {
                 timer = time[0];
-                if (timer >= ColorOffset + ColorSwap + offset) //If the timer is above offset + ColorOffset + ColorSwap (From the interface), then it's time to change color.
+                if (timer >= Options.ColorOffset + Options.ColorSwap + offset) //If the timer is above offset + ColorOffset + ColorSwap (From the interface), then it's time to change color.
                 {
-                    int swapTime = (int)((time[0] - time[1]) / ColorSwap) + 1; //We get the number of "beat" since the last time it entered here this way.
+                    int swapTime = (int)((time[0] - time[1]) / Options.ColorSwap) + 1; //We get the number of "beat" since the last time it entered here this way.
                     for (int i = 0; i < swapTime; i++) //For each time that it need to swap. (Dumb fix for a dumb method)
                     {
                         color = Inverse(color); //Swap color
-                        offset += ColorSwap; //Offset incremented
+                        offset += Options.ColorSwap; //Offset incremented
                     }
                 }
             }
@@ -165,24 +164,24 @@ namespace Lolighter.Methods
                 time[0] = now;
 
                 //Here we process Spin and Zoom
-                if (now == firstNote && time[1] == 0.0D && AllowSpinZoom) //If we are processing the first note, add spin + zoom to it.
+                if (now == firstNote && time[1] == 0.0D && Options.AllowSpinZoom) //If we are processing the first note, add spin + zoom to it.
                 {
-                    ev = new MapEvent(now + ColorOffset, EventType.RotationAllTrackRings, 0);
+                    ev = new MapEvent(now + Options.ColorOffset, EventType.RotationAllTrackRings, 0);
                     eventTempo.Add(ev);
-                    ev = new MapEvent(now + ColorOffset, EventType.RotationSmallTrackRings, 0);
+                    ev = new MapEvent(now + Options.ColorOffset, EventType.RotationSmallTrackRings, 0);
                     eventTempo.Add(ev);
                 }
-                else if (now >= ColorOffset + ColorSwap + offset && now > firstNote && AllowSpinZoom) //If we are reaching the next threshold of the timer
+                else if (now >= Options.ColorOffset + Options.ColorSwap + offset && now > firstNote && Options.AllowSpinZoom) //If we are reaching the next threshold of the timer
                 {
-                    ev = new MapEvent(offset + ColorOffset, EventType.RotationAllTrackRings, 0); //Add a spin at timer.
+                    ev = new MapEvent(offset + Options.ColorOffset, EventType.RotationAllTrackRings, 0); //Add a spin at timer.
                     eventTempo.Add(ev);
                     if (count == 0) //Only add zoom every 2 spin.
                     {
-                        ev = new MapEvent(offset + ColorOffset, EventType.RotationSmallTrackRings, 0);
+                        ev = new MapEvent(offset + Options.ColorOffset, EventType.RotationSmallTrackRings, 0);
                         eventTempo.Add(ev);
-                        if (AllowBoostColor)
+                        if (Options.AllowBoostColor)
                         {
-                            ev = new MapEvent(offset + ColorOffset, EventType.LightBoost, boostFlipFlop ? 1 : 0);
+                            ev = new MapEvent(offset + Options.ColorOffset, EventType.LightBoost, boostFlipFlop ? 1 : 0);
                             eventTempo.Add(ev);
                             boostFlipFlop = !boostFlipFlop;
                         }
@@ -194,7 +193,7 @@ namespace Lolighter.Methods
                     }
                 }
                 //If there's a quarter between two float parallel notes and timer didn't pass the check.
-                else if (time[1] - time[2] == 0.25 && time[3] == time[2] && time[1] == now && timer < offset && AllowSpinZoom)
+                else if (time[1] - time[2] == 0.25 && time[3] == time[2] && time[1] == now && timer < offset && Options.AllowSpinZoom)
                 {
                     ev = new MapEvent(now, EventType.RotationAllTrackRings, 0);
                     eventTempo.Add(ev);
@@ -204,33 +203,33 @@ namespace Lolighter.Methods
 
                 if ((now == time[1] || (now - time[1] <= 0.02 && time[1] != time[2])) && (time[1] != 0.0D && now != last)) //If not same note, same beat, apply once.
                 {
-                    if (!NerfStrobes) //Off event
+                    if (!Options.NerfStrobes) //Off event
                     {
                         if (now - last >= 0.5)
                         {
-                            if (AllowBackStrobe) //Back Top Laser
+                            if (Options.AllowBackStrobe) //Back Top Laser
                             {
                                 ev = new MapEvent(now + 0.25f, EventType.LightBackTopLasers, 0);
                                 eventTempo.Add(ev);
                             }
-                            if (AllowNeonStrobe) //Neon Light
+                            if (Options.AllowNeonStrobe) //Neon Light
                             {
                                 ev = new MapEvent(now + 0.25f, EventType.LightTrackRingNeons, 0);
                                 eventTempo.Add(ev);
                             }
-                            if (AllowSideStrobe) //Side Light
+                            if (Options.AllowSideStrobe) //Side Light
                             {
                                 ev = new MapEvent(now + 0.25f, EventType.LightBottomBackSideLasers, 0);
                                 eventTempo.Add(ev);
                             }
-                            if (pattern.Contains(EventType.LightLeftExtraLight) && AllowExtraStrobe) //Extra Light
+                            if (pattern.Contains(EventType.LightLeftExtraLight) && Options.AllowExtraStrobe) //Extra Light
                             {
                                 ev = new MapEvent(now + 0.25f, EventType.LightLeftExtraLight, 0);
                                 eventTempo.Add(ev);
                                 ev = new MapEvent(now + 0.25f, EventType.LightRightExtraLight, 0);
                                 eventTempo.Add(ev);
                             }
-                            if (pattern.Contains(EventType.LightLeftExtra2Light) && AllowExtra2Strobe) //Extra2 Light
+                            if (pattern.Contains(EventType.LightLeftExtra2Light) && Options.AllowExtra2Strobe) //Extra2 Light
                             {
                                 ev = new MapEvent(now + 0.25f, EventType.LightLeftExtra2Light, 0);
                                 eventTempo.Add(ev);
@@ -240,29 +239,29 @@ namespace Lolighter.Methods
                         }
                         else
                         {
-                            if (AllowBackStrobe) //Back Top Laser
+                            if (Options.AllowBackStrobe) //Back Top Laser
                             {
                                 ev = new MapEvent(now - (now - last) / 2, EventType.LightBackTopLasers, 0);
                                 eventTempo.Add(ev);
                             }
-                            if (AllowNeonStrobe) //Neon Light
+                            if (Options.AllowNeonStrobe) //Neon Light
                             {
                                 ev = new MapEvent(now - (now - last) / 2, EventType.LightTrackRingNeons, 0);
                                 eventTempo.Add(ev);
                             }
-                            if (AllowSideStrobe) //Side Light
+                            if (Options.AllowSideStrobe) //Side Light
                             {
                                 ev = new MapEvent(now - (now - last) / 2, EventType.LightBottomBackSideLasers, 0);
                                 eventTempo.Add(ev);
                             }
-                            if (pattern.Contains(EventType.LightLeftExtraLight) && AllowExtraStrobe) //Extra Light
+                            if (pattern.Contains(EventType.LightLeftExtraLight) && Options.AllowExtraStrobe) //Extra Light
                             {
                                 ev = new MapEvent(now - (now - last) / 2, EventType.LightLeftExtraLight, 0);
                                 eventTempo.Add(ev);
                                 ev = new MapEvent(now - (now - last) / 2, EventType.LightRightExtraLight, 0);
                                 eventTempo.Add(ev);
                             }
-                            if (pattern.Contains(EventType.LightLeftExtra2Light) && AllowExtra2Strobe) //Extra2 Light
+                            if (pattern.Contains(EventType.LightLeftExtra2Light) && Options.AllowExtra2Strobe) //Extra2 Light
                             {
                                 ev = new MapEvent(now - (now - last) / 2, EventType.LightLeftExtra2Light, 0);
                                 eventTempo.Add(ev);
@@ -322,7 +321,7 @@ namespace Lolighter.Methods
                 return 0;
             }
 
-            if (NerfStrobes)
+            if (Options.NerfStrobes)
             {
                 float lastTimeTop = 100;
                 float lastTimeNeon = 100;
@@ -399,7 +398,7 @@ namespace Lolighter.Methods
                 }
 
                 // Place light
-                if (AllowFade)
+                if (Options.AllowFade)
                 {
                     MapEvent lig = new MapEvent(noteTempo[0].Time, sliderLight[sliderIndex], color - 2);
                     eventTempo.Add(lig);
@@ -428,7 +427,7 @@ namespace Lolighter.Methods
                 sliderIndex--;
 
                 // Spin goes brrr
-                if (AllowSpinZoom)
+                if (Options.AllowSpinZoom)
                 {
                     MapEvent lig = new MapEvent(noteTempo[0].Time, EventType.RotationAllTrackRings, 0);
                     eventTempo.Add(lig);
@@ -552,7 +551,7 @@ namespace Lolighter.Methods
                     }
 
                     // Place light
-                    if (AllowFade)
+                    if (Options.AllowFade)
                     {
                         MapEvent lig = new MapEvent(time[0], sliderLight[sliderIndex], color - 2);
                         eventTempo.Add(lig);
@@ -580,7 +579,7 @@ namespace Lolighter.Methods
                     sliderIndex--;
 
                     // Spin goes brrr
-                    if (AllowSpinZoom)
+                    if (Options.AllowSpinZoom)
                     {
                         MapEvent lig = new MapEvent(time[0], EventType.RotationAllTrackRings, 0);
                         eventTempo.Add(lig);
@@ -683,7 +682,7 @@ namespace Lolighter.Methods
                 }
                 else if (time[0] - time[1] < 0.25) //Lower than fourth
                 {
-                    if (time[0] != last && time[0] != time[1] && note.Type != 3 && note.CutDirection != 8 && note.CutDirection != lastCut && AllowSpinZoom && !NerfStrobes) //Spin
+                    if (time[0] != last && time[0] != time[1] && note.Type != 3 && note.CutDirection != 8 && note.CutDirection != lastCut && Options.AllowSpinZoom && !Options.NerfStrobes) //Spin
                     {
                         last = time[0];
                         ev = new MapEvent(time[0], EventType.RotationAllTrackRings, 0);
