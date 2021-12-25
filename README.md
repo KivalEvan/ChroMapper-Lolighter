@@ -8,6 +8,11 @@ A well-known autolighter comes to ChroMapper as a plugin. New and updated featur
 
 -   Autolighting
 -   Downlighting
+-   Note Modifier
+    -   Bombs
+    -   Inverted
+    -   Loloppe
+    -   Sliders
 
 ### Credits
 
