@@ -61,8 +61,12 @@ namespace Lolighter
         public void Light()
         {
             string environmentName = _beatSaberSongContainer.Song.EnvironmentName;
-            List<MapEvent> newEvents = Methods.Light.CreateLight(_notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList(), environmentName);
-            // TODO: this should only remove lighting
+            List<BeatmapNote> notes = _notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList();
+            if (Options.Light.IgnoreBomb)
+            {
+                notes = new List<BeatmapNote>(notes.Where(x => x.Type != Items.Enum.NoteType.Bomb));
+            }
+            List<MapEvent> newEvents = Methods.Light.CreateLight(notes, environmentName);
             if (Options.Light.ClearLighting)
             {
                 List<MapEvent> oldEvents = _eventsContainer.LoadedObjects.Cast<MapEvent>().ToList();

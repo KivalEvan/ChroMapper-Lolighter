@@ -19,6 +19,7 @@
             public static bool AllowBoostColor { set; get; } = false;
             public static bool NerfStrobes { set; get; } = false;
             public static bool OnlyCommonEvent { set; get; } = false;
+            public static bool IgnoreBomb { set; get; } = false;
             public static bool ClearLighting { set; get; } = false;
         }
 

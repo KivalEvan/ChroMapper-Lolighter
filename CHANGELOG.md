@@ -9,6 +9,7 @@
     -   Inverted
     -   Loloppe
     -   Sliders
+-   Ignore bomb option
 
 ### Changed
 

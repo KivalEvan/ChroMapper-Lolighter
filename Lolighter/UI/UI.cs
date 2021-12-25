@@ -36,7 +36,7 @@ namespace Lolighter.UserInterface
             _lolighterMenu = new GameObject("Lolighter Menu");
             _lolighterMenu.transform.parent = parent.transform;
 
-            AttachTransform(_lolighterMenu, 360, 220, 1, 1, 0, 0, 1, 1);
+            AttachTransform(_lolighterMenu, 360, 225, 1, 1, 0, 0, 1, 1);
 
             Image image = _lolighterMenu.AddComponent<Image>();
             image.sprite = PersistentUI.Instance.Sprites.Background;
@@ -80,6 +80,10 @@ namespace Lolighter.UserInterface
             AddCheckbox(_lolighterMenu.transform, "Only Common Event", "Only Common Event", new Vector2(0, -175), Options.Light.OnlyCommonEvent, (check) =>
             {
                 Options.Light.OnlyCommonEvent = check;
+            });
+            AddCheckbox(_lolighterMenu.transform, "Ignore Bomb", "Ignore Bomb", new Vector2(0, -190), Options.Light.IgnoreBomb, (check) =>
+            {
+                Options.Light.IgnoreBomb = check;
             });
 
             AddLabel(_lolighterMenu.transform, "Color Swap", "Color Swap", new Vector2(120, -15));
@@ -129,11 +133,11 @@ namespace Lolighter.UserInterface
                 Options.Light.ClearLighting = check;
             });
 
-            AddButton(_lolighterMenu.transform, "Lolight", "Light", new Vector2(27.5f, -200), () =>
+            AddButton(_lolighterMenu.transform, "Lolight", "Light", new Vector2(27.5f, -205), () =>
             {
                 _lolighter.Light();
             });
-            AddButton(_lolighterMenu.transform, "Lodownlight", "Downlight", new Vector2(92.5f, -200), () =>
+            AddButton(_lolighterMenu.transform, "Lodownlight", "Downlight", new Vector2(92.5f, -205), () =>
             {
                 _lolighter.Downlight();
             });
