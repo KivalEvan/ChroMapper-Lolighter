@@ -31,14 +31,13 @@ namespace Lolighter.Methods
             float nextfloat = 0;
             bool firstSlider = false;
             BeatmapNote nextSlider = new BeatmapNote(0, 0, 0, 0, 0);
-            List<int> sliderLight = Options.Light.OnlyCommonEvent ? EnvironmentLight.LightableList() : EnvironmentLight.LightableList(environment);
+            List<int> sliderLight = Options.Light.OnlyCommonEvent ? EnvironmentEvent.LightableList() : EnvironmentEvent.LightableList(environment);
             sliderLight.Remove(2);
             sliderLight.Remove(3);
             int sliderIndex = 0;
             float sliderNoteCount = 0;
             bool wasSlider = false;
-            MapEvent ev;
-            List<int> pattern = Options.Light.OnlyCommonEvent ? EnvironmentLight.LightableList() : EnvironmentLight.LightableList(environment);
+            List<int> pattern = Options.Light.OnlyCommonEvent ? EnvironmentEvent.LightableList() : EnvironmentEvent.LightableList(environment);
             int maxPattern = pattern.Count;
             int patternIndex = 0;
             int patternCount = 0;
@@ -140,16 +139,12 @@ namespace Lolighter.Methods
                 switch (light[0]) //Add laser + speed
                 {
                     case 2:
-                        ev = new MapEvent(time[0], EventType.LightLeftLasers, color);
-                        eventTempo.Add(ev);
-                        ev = new MapEvent(time[0], EventType.RotatingLeftLasers, speed);
-                        eventTempo.Add(ev);
+                        eventTempo.Add(new MapEvent(time[0], EventType.LightLeftLasers, color));
+                        eventTempo.Add(new MapEvent(time[0], EventType.RotatingLeftLasers, speed));
                         break;
                     case 3:
-                        ev = new MapEvent(time[0], EventType.LightRightLasers, color);
-                        eventTempo.Add(ev);
-                        ev = new MapEvent(time[0], EventType.RotatingRightLasers, speed);
-                        eventTempo.Add(ev);
+                        eventTempo.Add(new MapEvent(time[0], EventType.LightRightLasers, color));
+                        eventTempo.Add(new MapEvent(time[0], EventType.RotatingRightLasers, speed));
                         break;
                 }
 
@@ -166,23 +161,19 @@ namespace Lolighter.Methods
                 //Here we process Spin and Zoom
                 if (now == firstNote && time[1] == 0.0D && Options.Light.AllowSpinZoom) //If we are processing the first note, add spin + zoom to it.
                 {
-                    ev = new MapEvent(now + Options.Light.ColorOffset, EventType.RotationAllTrackRings, 0);
-                    eventTempo.Add(ev);
-                    ev = new MapEvent(now + Options.Light.ColorOffset, EventType.RotationSmallTrackRings, 0);
-                    eventTempo.Add(ev);
+                    eventTempo.Add(new MapEvent(now + Options.Light.ColorOffset, EventType.RotationAllTrackRings, 0));
+                    eventTempo.Add(new MapEvent(now + Options.Light.ColorOffset, EventType.RotationSmallTrackRings, 0));
                 }
                 else if (now >= Options.Light.ColorOffset + Options.Light.ColorSwap + offset && now > firstNote && Options.Light.AllowSpinZoom) //If we are reaching the next threshold of the timer
                 {
-                    ev = new MapEvent(offset + Options.Light.ColorOffset, EventType.RotationAllTrackRings, 0); //Add a spin at timer.
-                    eventTempo.Add(ev);
-                    if (count == 0) //Only add zoom every 2 spin.
+                    //Add a spin at timer.
+                    eventTempo.Add(new MapEvent(offset + Options.Light.ColorOffset, EventType.RotationAllTrackRings, 0));
+                    if (count == 0) //Only add zoom (and boost) every 2 spin.
                     {
-                        ev = new MapEvent(offset + Options.Light.ColorOffset, EventType.RotationSmallTrackRings, 0);
-                        eventTempo.Add(ev);
+                        eventTempo.Add(new MapEvent(offset + Options.Light.ColorOffset, EventType.RotationSmallTrackRings, 0));
                         if (Options.Light.AllowBoostColor)
                         {
-                            ev = new MapEvent(offset + Options.Light.ColorOffset, EventType.LightBoost, boostFlipFlop ? 1 : 0);
-                            eventTempo.Add(ev);
+                            eventTempo.Add(new MapEvent(offset + Options.Light.ColorOffset, EventType.LightBoost, boostFlipFlop ? 1 : 0));
                             boostFlipFlop = !boostFlipFlop;
                         }
                         count = 1;
@@ -195,8 +186,7 @@ namespace Lolighter.Methods
                 //If there's a quarter between two float parallel notes and timer didn't pass the check.
                 else if (time[1] - time[2] == 0.25 && time[3] == time[2] && time[1] == now && timer < offset && Options.Light.AllowSpinZoom)
                 {
-                    ev = new MapEvent(now, EventType.RotationAllTrackRings, 0);
-                    eventTempo.Add(ev);
+                    eventTempo.Add(new MapEvent(now, EventType.RotationAllTrackRings, 0));
                 }
 
                 TimerDuration();
@@ -209,93 +199,65 @@ namespace Lolighter.Methods
                         {
                             if (Options.Light.AllowBackStrobe) //Back Top Laser
                             {
-                                ev = new MapEvent(now + 0.25f, EventType.LightBackTopLasers, 0);
-                                eventTempo.Add(ev);
+                                eventTempo.Add(new MapEvent(now + 0.25f, EventType.LightBackTopLasers, 0));
                             }
                             if (Options.Light.AllowNeonStrobe) //Neon Light
                             {
-                                ev = new MapEvent(now + 0.25f, EventType.LightTrackRingNeons, 0);
-                                eventTempo.Add(ev);
+                                eventTempo.Add(new MapEvent(now + 0.25f, EventType.LightTrackRingNeons, 0));
                             }
                             if (Options.Light.AllowSideStrobe) //Side Light
                             {
-                                ev = new MapEvent(now + 0.25f, EventType.LightBottomBackSideLasers, 0);
-                                eventTempo.Add(ev);
+                                eventTempo.Add(new MapEvent(now + 0.25f, EventType.LightBottomBackSideLasers, 0));
                             }
                             if (pattern.Contains(EventType.LightLeftExtraLight) && Options.Light.AllowExtraStrobe) //Extra Light
                             {
-                                ev = new MapEvent(now + 0.25f, EventType.LightLeftExtraLight, 0);
-                                eventTempo.Add(ev);
-                                ev = new MapEvent(now + 0.25f, EventType.LightRightExtraLight, 0);
-                                eventTempo.Add(ev);
+                                eventTempo.Add(new MapEvent(now + 0.25f, EventType.LightLeftExtraLight, 0));
+                                eventTempo.Add(new MapEvent(now + 0.25f, EventType.LightRightExtraLight, 0));
                             }
                             if (pattern.Contains(EventType.LightLeftExtra2Light) && Options.Light.AllowExtra2Strobe) //Extra2 Light
                             {
-                                ev = new MapEvent(now + 0.25f, EventType.LightLeftExtra2Light, 0);
-                                eventTempo.Add(ev);
-                                ev = new MapEvent(now + 0.25f, EventType.LightRightExtra2Light, 0);
-                                eventTempo.Add(ev);
+                                eventTempo.Add(new MapEvent(now + 0.25f, EventType.LightLeftExtra2Light, 0));
+                                eventTempo.Add(new MapEvent(now + 0.25f, EventType.LightRightExtra2Light, 0));
                             }
                         }
                         else
                         {
                             if (Options.Light.AllowBackStrobe) //Back Top Laser
                             {
-                                ev = new MapEvent(now - (now - last) / 2, EventType.LightBackTopLasers, 0);
-                                eventTempo.Add(ev);
+                                eventTempo.Add(new MapEvent(now - (now - last) / 2, EventType.LightBackTopLasers, 0));
                             }
                             if (Options.Light.AllowNeonStrobe) //Neon Light
                             {
-                                ev = new MapEvent(now - (now - last) / 2, EventType.LightTrackRingNeons, 0);
-                                eventTempo.Add(ev);
+                                eventTempo.Add(new MapEvent(now - (now - last) / 2, EventType.LightTrackRingNeons, 0));
                             }
                             if (Options.Light.AllowSideStrobe) //Side Light
                             {
-                                ev = new MapEvent(now - (now - last) / 2, EventType.LightBottomBackSideLasers, 0);
-                                eventTempo.Add(ev);
+                                eventTempo.Add(new MapEvent(now - (now - last) / 2, EventType.LightBottomBackSideLasers, 0));
                             }
                             if (pattern.Contains(EventType.LightLeftExtraLight) && Options.Light.AllowExtraStrobe) //Extra Light
                             {
-                                ev = new MapEvent(now - (now - last) / 2, EventType.LightLeftExtraLight, 0);
-                                eventTempo.Add(ev);
-                                ev = new MapEvent(now - (now - last) / 2, EventType.LightRightExtraLight, 0);
-                                eventTempo.Add(ev);
+                                eventTempo.Add(new MapEvent(now - (now - last) / 2, EventType.LightLeftExtraLight, 0));
+                                eventTempo.Add(new MapEvent(now - (now - last) / 2, EventType.LightRightExtraLight, 0));
                             }
                             if (pattern.Contains(EventType.LightLeftExtra2Light) && Options.Light.AllowExtra2Strobe) //Extra2 Light
                             {
-                                ev = new MapEvent(now - (now - last) / 2, EventType.LightLeftExtra2Light, 0);
-                                eventTempo.Add(ev);
-                                ev = new MapEvent(now - (now - last) / 2, EventType.LightRightExtra2Light, 0);
-                                eventTempo.Add(ev);
+                                eventTempo.Add(new MapEvent(now - (now - last) / 2, EventType.LightLeftExtra2Light, 0));
+                                eventTempo.Add(new MapEvent(now - (now - last) / 2, EventType.LightRightExtra2Light, 0));
                             }
                         }
                     }
-
-                    ev = new MapEvent(now, EventType.LightBackTopLasers, color); //Back Top Laser
-                    eventTempo.Add(ev);
-
-                    ev = new MapEvent(now, EventType.LightBottomBackSideLasers, color); //Side Light
-                    eventTempo.Add(ev);
-
-                    ev = new MapEvent(now, EventType.LightTrackRingNeons, color); //Track Ring Neons
-                    eventTempo.Add(ev);
-
+                    eventTempo.Add(new MapEvent(now, EventType.LightBackTopLasers, color));
+                    eventTempo.Add(new MapEvent(now, EventType.LightBottomBackSideLasers, color));
+                    eventTempo.Add(new MapEvent(now, EventType.LightTrackRingNeons, color));
                     if (pattern.Contains(EventType.LightLeftExtraLight))
                     {
-                        ev = new MapEvent(now, EventType.LightLeftExtraLight, color);
-                        eventTempo.Add(ev);
-
-                        ev = new MapEvent(now, EventType.LightRightExtraLight, color);
-                        eventTempo.Add(ev);
+                        eventTempo.Add(new MapEvent(now, EventType.LightLeftExtraLight, color));
+                        eventTempo.Add(new MapEvent(now, EventType.LightRightExtraLight, color));
                     }
-
                     if (pattern.Contains(EventType.LightLeftExtra2Light))
                     {
-                        ev = new MapEvent(now, EventType.LightLeftExtra2Light, color);
-                        eventTempo.Add(ev);
-
-                        ev = new MapEvent(now, EventType.LightRightExtra2Light, color);
-                        eventTempo.Add(ev);
+                        eventTempo.Add(new MapEvent(now, EventType.LightLeftExtra2Light, color));
+                        eventTempo.Add(new MapEvent(now, EventType.LightRightExtra2Light, color));
                     }
 
                     last = now;
@@ -309,16 +271,19 @@ namespace Lolighter.Methods
 
             int Swap(int temp)
             {
-                if (temp == EventLightValue.BlueFlashFade)
-                    return EventLightValue.BlueOn;
-                else if (temp == EventLightValue.RedFlashFade)
-                    return EventLightValue.RedOn;
-                else if (temp == EventLightValue.BlueOn)
-                    return EventLightValue.BlueFlashFade;
-                else if (temp == EventLightValue.RedOn)
-                    return EventLightValue.RedFlashFade;
-
-                return 0;
+                switch (temp)
+                {
+                    case EventLightValue.BlueFlashFade:
+                        return EventLightValue.BlueOn;
+                    case EventLightValue.RedFlashFade:
+                        return EventLightValue.RedOn;
+                    case EventLightValue.BlueOn:
+                        return EventLightValue.BlueFlashFade;
+                    case EventLightValue.RedOn:
+                        return EventLightValue.RedFlashFade;
+                    default:
+                        return 0;
+                }
             }
 
             if (Options.Light.NerfStrobes)
@@ -400,41 +365,30 @@ namespace Lolighter.Methods
                 // Place light
                 if (Options.Light.AllowFade)
                 {
-                    MapEvent lig = new MapEvent(noteTempo[0].Time, sliderLight[sliderIndex], color - 2);
-                    eventTempo.Add(lig);
-                    lig = new MapEvent(noteTempo[0].Time + 0.125f, sliderLight[sliderIndex], color - 1);
-                    eventTempo.Add(lig);
-                    lig = new MapEvent(noteTempo[0].Time + 0.25f, sliderLight[sliderIndex], color - 2);
-                    eventTempo.Add(lig);
-                    lig = new MapEvent(noteTempo[0].Time + 0.375f, sliderLight[sliderIndex], color - 1);
-                    eventTempo.Add(lig);
+                    eventTempo.Add(new MapEvent(noteTempo[0].Time, sliderLight[sliderIndex], color - 2));
+                    eventTempo.Add(new MapEvent(noteTempo[0].Time + 0.125f, sliderLight[sliderIndex], color - 1));
+                    eventTempo.Add(new MapEvent(noteTempo[0].Time + 0.25f, sliderLight[sliderIndex], color - 2));
+                    eventTempo.Add(new MapEvent(noteTempo[0].Time + 0.375f, sliderLight[sliderIndex], color - 1));
                 }
                 else
                 {
-                    MapEvent lig = new MapEvent(noteTempo[0].Time, sliderLight[sliderIndex], color);
-                    eventTempo.Add(lig);
-                    lig = new MapEvent(noteTempo[0].Time + 0.125f, sliderLight[sliderIndex], color + 1);
-                    eventTempo.Add(lig);
-                    lig = new MapEvent(noteTempo[0].Time + 0.25f, sliderLight[sliderIndex], color);
-                    eventTempo.Add(lig);
-                    lig = new MapEvent(noteTempo[0].Time + 0.375f, sliderLight[sliderIndex], color + 1);
-                    eventTempo.Add(lig);
+                    eventTempo.Add(new MapEvent(noteTempo[0].Time, sliderLight[sliderIndex], color));
+                    eventTempo.Add(new MapEvent(noteTempo[0].Time + 0.125f, sliderLight[sliderIndex], color + 1));
+                    eventTempo.Add(new MapEvent(noteTempo[0].Time + 0.25f, sliderLight[sliderIndex], color));
+                    eventTempo.Add(new MapEvent(noteTempo[0].Time + 0.375f, sliderLight[sliderIndex], color + 1));
                 }
 
-                MapEvent off = new MapEvent(noteTempo[0].Time + 0.5f, sliderLight[sliderIndex], 0);
-                eventTempo.Add(off);
+                eventTempo.Add(new MapEvent(noteTempo[0].Time + 0.5f, sliderLight[sliderIndex], 0));
 
                 sliderIndex--;
 
                 // Spin goes brrr
                 if (Options.Light.AllowSpinZoom)
                 {
-                    MapEvent lig = new MapEvent(noteTempo[0].Time, EventType.RotationAllTrackRings, 0);
-                    eventTempo.Add(lig);
+                    eventTempo.Add(new MapEvent(noteTempo[0].Time, EventType.RotationAllTrackRings, 0));
                     for (int i = 0; i < 8; i++)
                     {
-                        lig = new MapEvent(noteTempo[0].Time + 0.5f - (0.5f / 8 * i), EventType.RotationAllTrackRings, 0);
-                        eventTempo.Add(lig);
+                        eventTempo.Add(new MapEvent(noteTempo[0].Time + 0.5f - (0.5f / 8 * i), EventType.RotationAllTrackRings, 0));
                     }
                 }
             }
@@ -475,14 +429,10 @@ namespace Lolighter.Methods
                     {
                         if (!firstSlider)
                         {
-                            ev = new MapEvent(time[0], EventType.LightRightLasers, color);
-                            eventTempo.Add(ev);
-                            ev = new MapEvent(0, EventType.RotatingRightLasers, 1);
-                            eventTempo.Add(ev);
-                            ev = new MapEvent(time[1], EventType.LightLeftLasers, color);
-                            eventTempo.Add(ev);
-                            ev = new MapEvent(0, EventType.RotatingLeftLasers, 1);
-                            eventTempo.Add(ev);
+                            eventTempo.Add(new MapEvent(time[0], EventType.LightRightLasers, color));
+                            eventTempo.Add(new MapEvent(0, EventType.RotatingRightLasers, 1));
+                            eventTempo.Add(new MapEvent(time[1], EventType.LightLeftLasers, color));
+                            eventTempo.Add(new MapEvent(0, EventType.RotatingLeftLasers, 1));
                         }
                         time[2] = time[1];
                         time[1] = time[0];
@@ -553,40 +503,29 @@ namespace Lolighter.Methods
                     // Place light
                     if (Options.Light.AllowFade)
                     {
-                        MapEvent lig = new MapEvent(time[0], sliderLight[sliderIndex], color - 2);
-                        eventTempo.Add(lig);
-                        lig = new MapEvent(time[0] + 0.125f, sliderLight[sliderIndex], color - 1);
-                        eventTempo.Add(lig);
-                        lig = new MapEvent(time[0] + 0.25f, sliderLight[sliderIndex], color - 2);
-                        eventTempo.Add(lig);
-                        lig = new MapEvent(time[0] + 0.375f, sliderLight[sliderIndex], color - 1);
-                        eventTempo.Add(lig);
+                        eventTempo.Add(new MapEvent(time[0], sliderLight[sliderIndex], color - 2));
+                        eventTempo.Add(new MapEvent(time[0] + 0.125f, sliderLight[sliderIndex], color - 1));
+                        eventTempo.Add(new MapEvent(time[0] + 0.25f, sliderLight[sliderIndex], color - 2));
+                        eventTempo.Add(new MapEvent(time[0] + 0.375f, sliderLight[sliderIndex], color - 1));
                     }
                     else
                     {
-                        MapEvent lig = new MapEvent(time[0], sliderLight[sliderIndex], color);
-                        eventTempo.Add(lig);
-                        lig = new MapEvent(time[0] + 0.125f, sliderLight[sliderIndex], color + 1);
-                        eventTempo.Add(lig);
-                        lig = new MapEvent(time[0] + 0.25f, sliderLight[sliderIndex], color);
-                        eventTempo.Add(lig);
-                        lig = new MapEvent(time[0] + 0.375f, sliderLight[sliderIndex], color + 1);
-                        eventTempo.Add(lig);
+                        eventTempo.Add(new MapEvent(time[0], sliderLight[sliderIndex], color));
+                        eventTempo.Add(new MapEvent(time[0] + 0.125f, sliderLight[sliderIndex], color + 1));
+                        eventTempo.Add(new MapEvent(time[0] + 0.25f, sliderLight[sliderIndex], color));
+                        eventTempo.Add(new MapEvent(time[0] + 0.375f, sliderLight[sliderIndex], color + 1));
                     }
-                    MapEvent off = new MapEvent(time[0] + 0.5f, sliderLight[sliderIndex], 0);
-                    eventTempo.Add(off);
+                    eventTempo.Add(new MapEvent(time[0] + 0.5f, sliderLight[sliderIndex], 0));
 
                     sliderIndex--;
 
                     // Spin goes brrr
                     if (Options.Light.AllowSpinZoom)
                     {
-                        MapEvent lig = new MapEvent(time[0], EventType.RotationAllTrackRings, 0);
-                        eventTempo.Add(lig);
+                        eventTempo.Add(new MapEvent(time[0], EventType.RotationAllTrackRings, 0));
                         for (int i = 0; i < 8; i++)
                         {
-                            lig = new MapEvent(time[0] + 0.5f - (0.5f / 8 * i), EventType.RotationAllTrackRings, 0);
-                            eventTempo.Add(lig);
+                            eventTempo.Add(new MapEvent(time[0] + 0.5f - (0.5f / 8 * i), EventType.RotationAllTrackRings, 0));
                         }
                     }
 
@@ -617,8 +556,7 @@ namespace Lolighter.Methods
                     }
 
                     // Place the next light
-                    MapEvent lig = new MapEvent(time[0], pattern[patternIndex], color);
-                    eventTempo.Add(lig);
+                    eventTempo.Add(new MapEvent(time[0], pattern[patternIndex], color));
 
                     if (time[0] - time[1] < 0.25)
                     {
@@ -639,13 +577,11 @@ namespace Lolighter.Methods
 
                     if (pattern[patternIndex] == 2)
                     {
-                        MapEvent spd = new MapEvent(time[0], EventType.RotatingLeftLasers, currentSpeed);
-                        eventTempo.Add(spd);
+                        eventTempo.Add(new MapEvent(time[0], EventType.RotatingLeftLasers, currentSpeed));
                     }
                     else if (pattern[patternIndex] == 3)
                     {
-                        MapEvent spd = new MapEvent(time[0], EventType.RotatingRightLasers, currentSpeed);
-                        eventTempo.Add(spd);
+                        eventTempo.Add(new MapEvent(time[0], EventType.RotatingRightLasers, currentSpeed));
                     }
 
                     // Place off event
@@ -656,14 +592,12 @@ namespace Lolighter.Methods
                             if (noteTempo[noteTempo.FindIndex(n => n == note) + 1].Time - time[0] <= 2)
                             {
                                 float value = (noteTempo[noteTempo.FindIndex(n => n == note) + 1].Time - noteTempo[noteTempo.FindIndex(n => n == note)].Time) / 2;
-                                MapEvent off = new MapEvent(noteTempo[noteTempo.FindIndex(n => n == note)].Time + value, pattern[patternIndex], 0);
-                                eventTempo.Add(off);
+                                eventTempo.Add(new MapEvent(noteTempo[noteTempo.FindIndex(n => n == note)].Time + value, pattern[patternIndex], 0));
                             }
                         }
                         else
                         {
-                            MapEvent off = new MapEvent(noteTempo[noteTempo.FindIndex(n => n == note) + 1].Time, pattern[patternIndex], 0);
-                            eventTempo.Add(off);
+                            eventTempo.Add(new MapEvent(noteTempo[noteTempo.FindIndex(n => n == note) + 1].Time, pattern[patternIndex], 0));
                         }
                     }
 
@@ -685,12 +619,10 @@ namespace Lolighter.Methods
                     if (time[0] != last && time[0] != time[1] && note.Type != 3 && note.CutDirection != 8 && note.CutDirection != lastCut && Options.Light.AllowSpinZoom && !Options.Light.NerfStrobes) //Spin
                     {
                         last = time[0];
-                        ev = new MapEvent(time[0], EventType.RotationAllTrackRings, 0);
-                        eventTempo.Add(ev);
+                        eventTempo.Add(new MapEvent(time[0], EventType.RotationAllTrackRings, 0));
                         for (int i = 0; i < 8; i++)
                         {
-                            ev = new MapEvent(time[0] - ((time[0] - time[1]) / 8 * i), EventType.RotationAllTrackRings, 0);
-                            eventTempo.Add(ev);
+                            eventTempo.Add(new MapEvent(time[0] - ((time[0] - time[1]) / 8 * i), EventType.RotationAllTrackRings, 0));
                         }
                     }
 
