@@ -64,117 +64,123 @@ namespace Lolighter
             var beatmapActions = new List<BeatmapAction>();
             string environmentName = _beatSaberSongContainer.Song.EnvironmentName;
             List<BeatmapNote> notes = _notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList();
+            List<MapEvent> currentEvents = _eventsContainer.LoadedObjects.Cast<MapEvent>().ToList();
+            List<MapEvent> oldEvents = _eventsContainer.LoadedObjects.Cast<MapEvent>().Where(ev => Utils.EnvironmentEvent.IsEnvironmentEvent(ev)).ToList();
+            List<MapEvent> newEvents = Methods.Light.CreateLight(notes, environmentName);
             if (Options.Light.IgnoreBomb)
             {
                 notes = new List<BeatmapNote>(notes.Where(x => x.Type != Items.Enum.NoteType.Bomb));
             }
             if (Options.Light.ClearLighting)
             {
-                List<MapEvent> oldEvents = _eventsContainer.LoadedObjects.Cast<MapEvent>().Where(ev => Utils.EnvironmentEvent.IsEnvironmentEvent(ev)).ToList();
-                beatmapActions.Add(new BeatmapObjectDeletionAction(oldEvents.AsEnumerable(), "Lolighter Clear Lighting"));
+                beatmapActions.Insert(0, new BeatmapObjectDeletionAction(oldEvents, "Lolighter Clear Lighting"));
                 foreach (var ev in oldEvents)
                 {
-                    _eventsContainer.DeleteObject(ev, false, false);
+                    _eventsContainer.DeleteObject(ev, false);
                 }
             }
-            List<MapEvent> currentEvents = _eventsContainer.LoadedObjects.Cast<MapEvent>().ToList();
-            List<MapEvent> newEvents = Methods.Light.CreateLight(notes, environmentName);
-            beatmapActions.Add(new BeatmapObjectPlacementAction(newEvents.AsEnumerable(), Enumerable.Empty<BeatmapObject>(), "Lolighter Light"));
+            beatmapActions.Insert(0, new BeatmapObjectPlacementAction(newEvents, Options.Light.ClearLighting ? oldEvents : currentEvents, "Lolighter Light"));
             foreach (var ev in newEvents)
             {
-                _eventsContainer.SpawnObject(ev, false, false);
+                _eventsContainer.SpawnObject(ev, Options.Light.ClearLighting, false);
             }
             Utils.Action.Save(beatmapActions, "Lolighter Light");
+            BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Event).RefreshPool(true);
         }
 
         public void Downlight()
         {
             var beatmapActions = new List<BeatmapAction>();
-            List<MapEvent> oldEvents = _eventsContainer.LoadedObjects.Cast<MapEvent>().Where(ev => Utils.EnvironmentEvent.IsEnvironmentEvent(ev)).ToList();
-            List<MapEvent> newEvents = Methods.DownLighter.Down(_eventsContainer.LoadedObjects.Cast<MapEvent>().ToList());
-            beatmapActions.Add(new BeatmapObjectDeletionAction(oldEvents.AsEnumerable(), "Lolighter Forced Clear Lighting"));
+            List<MapEvent> oldEvents = _eventsContainer.LoadedObjects.Cast<MapEvent>().ToList();
+            List<MapEvent> newEvents = Methods.DownLighter.Down(oldEvents);
+            beatmapActions.Insert(0, new BeatmapObjectDeletionAction(oldEvents, "Lolighter Forced Clear Lighting"));
             foreach (var ev in oldEvents)
             {
-                _eventsContainer.DeleteObject(ev, false, false);
+                _eventsContainer.DeleteObject(ev, false);
             }
-            beatmapActions.Add(new BeatmapObjectPlacementAction(newEvents.AsEnumerable(), Enumerable.Empty<BeatmapObject>(), "Lolighter Downlight"));
+            beatmapActions.Insert(0, new BeatmapObjectPlacementAction(newEvents, Enumerable.Empty<BeatmapObject>(), "Lolighter Downlight"));
             foreach (var ev in newEvents)
             {
                 _eventsContainer.SpawnObject(ev, false, false);
             }
             Utils.Action.Save(beatmapActions, "Lolighter Downlight");
+            BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Event).RefreshPool(true);
         }
 
         public void Bombs()
         {
             var beatmapActions = new List<BeatmapAction>();
             List<BeatmapNote> oldNotes = _notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList();
-            List<BeatmapNote> newNotes = Methods.Bombs.CreateBomb(_notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList());
-            beatmapActions.Add(new BeatmapObjectDeletionAction(oldNotes.AsEnumerable(), "Lolighter Forced Clear Note"));
+            List<BeatmapNote> newNotes = Methods.Bombs.CreateBomb(oldNotes.ConvertAll(n => new BeatmapNote(n.Time, n.LineIndex, n.LineLayer, n.Type, n.CutDirection, n.CustomData)));
+            beatmapActions.Insert(0, new BeatmapObjectDeletionAction(oldNotes, "Lolighter Forced Clear Note"));
             foreach (var n in oldNotes)
             {
-                _notesContainer.DeleteObject(n, false, false);
+                _notesContainer.DeleteObject(n, false);
             }
-            beatmapActions.Add(new BeatmapObjectPlacementAction(newNotes.AsEnumerable(), Enumerable.Empty<BeatmapObject>(), "Lolighter Bombs"));
+            beatmapActions.Insert(0, new BeatmapObjectPlacementAction(newNotes, Enumerable.Empty<BeatmapObject>(), "Lolighter Bombs"));
             foreach (var n in newNotes)
             {
                 _notesContainer.SpawnObject(n, false, false);
             }
             Utils.Action.Save(beatmapActions, "Lolighter Bombs");
+            BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note).RefreshPool(true);
         }
 
         public void Inverted()
         {
             var beatmapActions = new List<BeatmapAction>();
             List<BeatmapNote> oldNotes = _notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList();
-            List<BeatmapNote> newNotes = Methods.Inverted.MakeInverted(_notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList());
-            beatmapActions.Add(new BeatmapObjectDeletionAction(oldNotes.AsEnumerable(), "Lolighter Forced Clear Note"));
+            List<BeatmapNote> newNotes = Methods.Inverted.MakeInverted(oldNotes.ConvertAll(n => new BeatmapNote(n.Time, n.LineIndex, n.LineLayer, n.Type, n.CutDirection, n.CustomData)));
+            beatmapActions.Insert(0, new BeatmapObjectDeletionAction(oldNotes, "Lolighter Forced Clear Note"));
             foreach (var n in oldNotes)
             {
-                _notesContainer.DeleteObject(n, false, false);
+                _notesContainer.DeleteObject(n, false);
             }
-            beatmapActions.Add(new BeatmapObjectPlacementAction(newNotes.AsEnumerable(), Enumerable.Empty<BeatmapObject>(), "Lolighter Inverted"));
+            beatmapActions.Insert(0, new BeatmapObjectPlacementAction(newNotes, Enumerable.Empty<BeatmapObject>(), "Lolighter Inverted"));
             foreach (var n in newNotes)
             {
                 _notesContainer.SpawnObject(n, false, false);
             }
             Utils.Action.Save(beatmapActions, "Lolighter Inverted");
+            BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note).RefreshPool(true);
         }
 
         public void Loloppe()
         {
             var beatmapActions = new List<BeatmapAction>();
             List<BeatmapNote> oldNotes = _notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList();
-            List<BeatmapNote> newNotes = Methods.Loloppe.LoloppeGen(_notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList());
-            beatmapActions.Add(new BeatmapObjectDeletionAction(oldNotes.AsEnumerable(), "Lolighter Forced Clear Note"));
+            List<BeatmapNote> newNotes = Methods.Loloppe.LoloppeGen(oldNotes.ConvertAll(n => new BeatmapNote(n.Time, n.LineIndex, n.LineLayer, n.Type, n.CutDirection, n.CustomData)));
+            beatmapActions.Insert(0, new BeatmapObjectDeletionAction(oldNotes, "Lolighter Forced Clear Note"));
             foreach (var n in oldNotes)
             {
-                _notesContainer.DeleteObject(n, false, false);
+                _notesContainer.DeleteObject(n, false);
             }
-            beatmapActions.Add(new BeatmapObjectPlacementAction(newNotes.AsEnumerable(), Enumerable.Empty<BeatmapObject>(), "Lolighter Loloppe"));
+            beatmapActions.Insert(0, new BeatmapObjectPlacementAction(newNotes, Enumerable.Empty<BeatmapObject>(), "Lolighter Loloppe"));
             foreach (var n in newNotes)
             {
                 _notesContainer.SpawnObject(n, false, false);
             }
             Utils.Action.Save(beatmapActions, "Lolighter Loloppe");
+            BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note).RefreshPool(true);
         }
 
         public void Sliders()
         {
             var beatmapActions = new List<BeatmapAction>();
             List<BeatmapNote> oldNotes = _notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList();
-            List<BeatmapNote> newNotes = Methods.Sliders.MakeSliders(_notesContainer.LoadedObjects.Cast<BeatmapNote>().ToList());
-            beatmapActions.Add(new BeatmapObjectDeletionAction(oldNotes.AsEnumerable(), "Lolighter Forced Clear Note"));
+            List<BeatmapNote> newNotes = Methods.Sliders.MakeSliders(oldNotes.ConvertAll(n => new BeatmapNote(n.Time, n.LineIndex, n.LineLayer, n.Type, n.CutDirection, n.CustomData)));
+            beatmapActions.Insert(0, new BeatmapObjectDeletionAction(oldNotes, "Lolighter Forced Clear Note"));
             foreach (var n in oldNotes)
             {
-                _notesContainer.DeleteObject(n, false, false);
+                _notesContainer.DeleteObject(n, false);
             }
-            beatmapActions.Add(new BeatmapObjectPlacementAction(newNotes.AsEnumerable(), Enumerable.Empty<BeatmapObject>(), "Lolighter Sliders"));
+            beatmapActions.Insert(0, new BeatmapObjectPlacementAction(newNotes, Enumerable.Empty<BeatmapObject>(), "Lolighter Sliders"));
             foreach (var n in newNotes)
             {
                 _notesContainer.SpawnObject(n, false, false);
             }
             Utils.Action.Save(beatmapActions, "Lolighter Sliders");
+            BeatmapObjectContainerCollection.GetCollectionForType(BeatmapObject.ObjectType.Note).RefreshPool(true);
         }
 
         [Exit]
