@@ -10,6 +10,7 @@
     -   Loloppe
     -   Sliders
 -   Ignore bomb option
+-   Undo
 
 ### Changed
 

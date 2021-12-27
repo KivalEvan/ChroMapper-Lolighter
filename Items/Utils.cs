@@ -6,10 +6,9 @@ namespace Lolighter.Items
     {
         public static class Action
         {
-            public static void Save()
+            public static void Save(List<BeatmapAction> actions, string message = "Lolighter")
             {
-                //beatmapAction.Add(new BeatmapObjectPlacementAction());
-                //BeatmapActionContainer.AddAction();
+                BeatmapActionContainer.AddAction(new ActionCollectionAction(actions, true, true, message));
             }
         }
         public static class EnvironmentEvent
