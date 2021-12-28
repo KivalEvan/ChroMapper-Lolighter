@@ -389,7 +389,7 @@ namespace Lolighter.Methods
             newNote.AddRange(noteTemp);
             List<BeatmapNote> sorted = newNote.OrderBy(o => o.Time).ToList();
 
-            for (int i = sorted.Count() - 5; i > 4; i--) //Dumb method to remove bomb that conflict with a note. (Hitbox issue)
+            for (int i = sorted.Count() - 5; i > 4; i--) //Dumb method to remove bomb that conflict with a note.
             {
                 if (sorted[i].Type == NoteType.Bomb)
                 {

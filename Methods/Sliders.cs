@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using static Lolighter.Items.Enum;
 using Options = Lolighter.Items.Options;
+using static Lolighter.Items.Enum;
 
 namespace Lolighter.Methods
 {
@@ -11,419 +11,456 @@ namespace Lolighter.Methods
         {
             List<BeatmapNote> newNote = new List<BeatmapNote>();
             List<BeatmapNote> toRemove = new List<BeatmapNote>();
-            BeatmapNote n = new BeatmapNote(0, 0, 0, 0, 0);
+            BeatmapNote now = new BeatmapNote(0, 0, 0, 0, 0);
             BeatmapNote lastNote = new BeatmapNote(0, 0, 0, 0, 0);
             float secondNote = Options.Modifier.SliderPrecision > 0.0f ? 1 / Options.Modifier.SliderPrecision : 0.0f;
             float thirdNote = secondNote * 2;
-            bool found = false;
+            bool wrong = false;
 
-            for (int i = noteTemp.Count() - 1; i > -1; i--) //For each note in reverse-order
+            for (int i = noteTemp.Count() - 1; i > 0; i--) // We try to find if the current note is part of a slider or can be slidified.
             {
-                n = noteTemp[i];
+                now = noteTemp[i];
 
-                if (n.Type == NoteType.Bomb) //If Bomb, skip
+                if (now.Type == NoteType.Bomb) //If Bomb, skip
                 {
                     continue;
                 }
-                else if (n.CutDirection == CutDirection.Any) //If Any, skip
+                else if (now.CutDirection == CutDirection.Any) //If Any, skip
                 {
                     continue;
                 }
 
-                found = false;
+                wrong = false; //If wrong, skip
 
                 foreach (BeatmapNote temp in noteTemp) //For each note
                 {
-                    if (n.Time == temp.Time && n.Type == temp.Type && n.CutDirection == temp.CutDirection && !Options.Modifier.IsLimited)
+                    if (now == temp) continue; // Same note
+                    else if (now.Time == temp.Time && now.Type == temp.Type && now.CutDirection == temp.CutDirection && !Options.Modifier.IsLimited) break; // Loloppe
+                    else if (((now.Time - temp.Time < Options.Modifier.Limiter * 2 && now.Time - temp.Time > 0) || (temp.Time - now.Time < Options.Modifier.Limiter * 2 && temp.Time - now.Time > 0)) && temp.Type == now.Type)
                     {
-                        //Loloppe notes
+                        // Already a slider, tower, stack or issue with mapping?
+                        wrong = true;
                         break;
                     }
-                    else if (((n.Time - temp.Time < Options.Modifier.Limiter * 2 && n.Time - temp.Time > 0) || (temp.Time - n.Time < Options.Modifier.Limiter * 2 && temp.Time - n.Time > 0)) && temp.Type == n.Type)
+                    else if (temp.Time == now.Time && temp.Type == now.Type && now != temp)
                     {
-                        found = true;
+                        // Already a slider, tower, stack or issue with mapping?
+                        wrong = true;
                         break;
                     }
-                    else if (temp.Time == n.Time && temp.Type == n.Type && n != temp)
+                    else if (now.Time == temp.Time && now.Type != temp.Type && now.CutDirection == temp.CutDirection && (now.CutDirection == CutDirection.UpLeft || now.CutDirection == CutDirection.UpRight))
                     {
-                        found = true;
+                        // Diagonal double
+                        wrong = true;
                         break;
                     }
-                    else if (n.Time == temp.Time && n.Type != temp.Type && n.CutDirection == temp.CutDirection && (n.CutDirection == CutDirection.UpLeft || n.CutDirection == CutDirection.UpRight))
+                    else if (now.Time == temp.Time && temp.Type != now.Type && ((temp.LineIndex == Index.Left && now.LineIndex == Index.MiddleLeft) || (temp.LineIndex == Index.Right && now.LineIndex == Index.MiddleRight)))
                     {
-                        found = true;
-                        break;
-                    }
-                    else if (n.Time == temp.Time && temp.Type != n.Type && ((temp.LineIndex == Index.Left && n.LineIndex == Index.MiddleLeft) || (temp.LineIndex == Index.Right && n.LineIndex == Index.MiddleRight)))
-                    {
-                        found = true;
+                        // Collision issue
+                        wrong = true;
                         break;
                     }
                 }
 
-                if (found) //If found, then skip
+                if (wrong) //If wrong, then skip
                 {
                     continue;
                 }
 
-                switch (n.LineLayer) //Process the note into a sliders depending on layer, lane and cut direction manually. This is pretty Pepega.
+                switch (now.LineLayer) //Process the note into a sliders depending on layer, lane and cut direction manually. This is pretty Pepega.
                 {
                     case Layer.Bottom:
-                        switch (n.LineIndex)
+                        switch (now.LineIndex)
                         {
                             case Index.Left:
-                                switch (n.CutDirection)
+                                switch (now.CutDirection)
                                 {
                                     case CutDirection.Up:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Middle, n.Type, CutDirection.Any));
-                                        if (n.Type == NoteType.Red)
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Middle, now.Type, CutDirection.Any));
+                                        if (now.Type == NoteType.Red)
                                         {
-                                            newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.Left, Layer.Top, n.Type, CutDirection.Any));
+                                            newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.Left, Layer.Top, now.Type, CutDirection.Any));
                                         }
                                         else
                                         {
-                                            newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.MiddleLeft, Layer.Top, n.Type, CutDirection.Any));
+                                            newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.MiddleLeft, Layer.Top, now.Type, CutDirection.Any));
                                         }
                                         break;
                                     case CutDirection.Down:
-                                        n.LineLayer = Layer.Top;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Middle, n.Type, CutDirection.Any));
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.Left, Layer.Bottom, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineLayer == Layer.Top))
+                                        {
+                                            now.LineLayer = Layer.Top;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Middle, now.Type, CutDirection.Any));
+                                            newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.Left, Layer.Bottom, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.Left:
-                                        n.LineIndex = Index.MiddleLeft;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Bottom, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineIndex == Index.MiddleLeft))
+                                        {
+                                            now.LineIndex = Index.MiddleLeft;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Bottom, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.Right:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleLeft, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleLeft, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.UpLeft:
-                                        n.LineIndex = 1;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Middle, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineIndex == Index.MiddleLeft))
+                                        {
+                                            now.LineIndex = Index.MiddleLeft;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Middle, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.UpRight:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleRight, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleRight, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.DownLeft:
-                                        n.LineIndex = Index.MiddleLeft;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Bottom, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineIndex == Index.MiddleLeft))
+                                        {
+                                            now.LineIndex = Index.MiddleLeft;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Bottom, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.DownRight:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleLeft, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleLeft, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                 }
                                 break;
                             case Index.MiddleLeft:
-                                switch (n.CutDirection)
+                                switch (now.CutDirection)
                                 {
                                     case CutDirection.Up:
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.MiddleLeft, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.MiddleLeft, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.Left:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.Right:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleRight, Layer.Bottom, n.Type, CutDirection.Any));
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.Right, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleRight, Layer.Bottom, now.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.Right, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.UpLeft:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Middle, n.Type, CutDirection.Any));
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.Left, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Middle, now.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.Left, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.UpRight:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.DownLeft:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.DownRight:
-                                        n.LineLayer = Layer.Middle;
-                                        n.LineIndex = Index.Left;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleLeft, Layer.Bottom, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineIndex == Index.Left && x.LineLayer == Layer.Middle))
+                                        {
+                                            now.LineLayer = Layer.Middle;
+                                            now.LineIndex = Index.Left;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleLeft, Layer.Bottom, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                 }
                                 break;
                             case Index.MiddleRight:
-                                switch (n.CutDirection)
+                                switch (now.CutDirection)
                                 {
                                     case CutDirection.Up:
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.MiddleRight, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.MiddleRight, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.Left:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleLeft, Layer.Bottom, n.Type, CutDirection.Any));
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.Left, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleLeft, Layer.Bottom, now.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.Left, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.Right:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.UpLeft:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.UpRight:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Middle, n.Type, CutDirection.Any));
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.Right, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Middle, now.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.Right, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.DownLeft:
-                                        n.LineLayer = Layer.Middle;
-                                        n.LineIndex = Index.Right;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleRight, Layer.Bottom, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineIndex == Index.Right && x.LineLayer == Layer.Middle))
+                                        {
+                                            now.LineLayer = Layer.Middle;
+                                            now.LineIndex = Index.Right;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleRight, Layer.Bottom, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.DownRight:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                 }
                                 break;
                             case Index.Right:
-                                switch (n.CutDirection)
+                                switch (now.CutDirection)
                                 {
                                     case CutDirection.Up:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Middle, n.Type, CutDirection.Any));
-                                        if (n.Type == NoteType.Red)
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Middle, now.Type, CutDirection.Any));
+                                        if (now.Type == NoteType.Red)
                                         {
-                                            newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.MiddleRight, Layer.Top, n.Type, CutDirection.Any));
+                                            newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.MiddleRight, Layer.Top, now.Type, CutDirection.Any));
                                         }
                                         else
                                         {
-                                            newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.Right, Layer.Top, n.Type, CutDirection.Any));
+                                            newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.Right, Layer.Top, now.Type, CutDirection.Any));
                                         }
                                         break;
                                     case CutDirection.Down:
-                                        n.LineLayer = Layer.Top;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Middle, n.Type, CutDirection.Any));
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.Right, Layer.Bottom, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineLayer == Layer.Top))
+                                        {
+                                            now.LineLayer = Layer.Top;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Middle, now.Type, CutDirection.Any));
+                                            newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.Right, Layer.Bottom, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.Left:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleRight, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleRight, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.Right:
-                                        n.LineIndex = Index.MiddleRight;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Bottom, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineIndex == Index.MiddleRight))
+                                        {
+                                            now.LineIndex = Index.MiddleRight;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Bottom, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.UpLeft:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleLeft, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleLeft, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.UpRight:
-                                        n.LineIndex = Index.MiddleRight;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Middle, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineIndex == Index.MiddleRight))
+                                        {
+                                            now.LineIndex = Index.MiddleRight;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Middle, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.DownLeft:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleRight, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleRight, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.DownRight:
-                                        n.LineIndex = Index.MiddleRight;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Bottom, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineIndex == Index.MiddleRight))
+                                        {
+                                            now.LineIndex = Index.MiddleRight;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Bottom, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                 }
                                 break;
                         }
                         break;
                     case Layer.Middle:
-                        switch (n.LineIndex)
+                        switch (now.LineIndex)
                         {
                             case Index.Left:
-                                switch (n.CutDirection)
+                                switch (now.CutDirection)
                                 {
                                     case CutDirection.Up:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.Down:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.UpRight:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleLeft, Layer.Top, n.Type, CutDirection.Any));
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.MiddleRight, Layer.Top, n.Type, CutDirection.Any));
-                                        break;
-                                    case CutDirection.DownLeft:
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleLeft, Layer.Top, now.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.MiddleRight, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.DownRight:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleLeft, Layer.Bottom, n.Type, CutDirection.Any));
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.MiddleRight, Layer.Bottom, n.Type, CutDirection.Any));
-                                        break;
-                                }
-                                break;
-                            case Index.MiddleLeft:
-                                switch (n.CutDirection)
-                                {
-                                    case CutDirection.Left:
-                                        n.LineIndex = Index.Left;
-                                        break;
-                                    case CutDirection.Right:
-                                        n.LineIndex = Index.Right;
-                                        break;
-                                }
-                                break;
-                            case Index.MiddleRight:
-                                switch (n.CutDirection)
-                                {
-                                    case CutDirection.Left:
-                                        n.LineIndex = Index.Left;
-                                        break;
-                                    case CutDirection.Right:
-                                        n.LineIndex = Index.Right;
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleLeft, Layer.Bottom, now.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.MiddleRight, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                 }
                                 break;
                             case Index.Right:
-                                switch (n.CutDirection)
+                                switch (now.CutDirection)
                                 {
                                     case CutDirection.Up:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.Down:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.UpLeft:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleRight, Layer.Top, n.Type, CutDirection.Any));
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.MiddleLeft, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleRight, Layer.Top, now.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.MiddleLeft, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.DownLeft:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleRight, Layer.Bottom, n.Type, CutDirection.Any));
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.MiddleLeft, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleRight, Layer.Bottom, now.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.MiddleLeft, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                 }
                                 break;
                         }
                         break;
                     case Layer.Top:
-                        switch (n.LineIndex)
+                        switch (now.LineIndex)
                         {
                             case Index.Left:
-                                switch (n.CutDirection)
+                                switch (now.CutDirection)
                                 {
                                     case CutDirection.Up:
-                                        n.LineLayer = Layer.Bottom;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Middle, n.Type, CutDirection.Any));
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.Left, Layer.Top, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineLayer == Layer.Bottom))
+                                        {
+                                            now.LineLayer = Layer.Bottom;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Middle, now.Type, CutDirection.Any));
+                                            newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.Left, Layer.Top, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.Down:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Middle, n.Type, CutDirection.Any));
-                                        if (n.Type == NoteType.Red)
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Middle, now.Type, CutDirection.Any));
+                                        if (now.Type == NoteType.Red)
                                         {
-                                            newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.Left, Layer.Bottom, n.Type, CutDirection.Any));
+                                            newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.Left, Layer.Bottom, now.Type, CutDirection.Any));
                                         }
                                         else
                                         {
-                                            newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.MiddleLeft, Layer.Bottom, n.Type, CutDirection.Any));
+                                            newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.MiddleLeft, Layer.Bottom, now.Type, CutDirection.Any));
                                         }
                                         break;
                                     case CutDirection.Left:
-                                        n.LineIndex = Index.MiddleLeft;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Top, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineIndex == Index.MiddleLeft))
+                                        {
+                                            now.LineIndex = Index.MiddleLeft;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Top, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.Right:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleLeft, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleLeft, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.UpLeft:
-                                        n.LineLayer = Layer.Middle;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Top, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineLayer == Layer.Middle))
+                                        {
+                                            now.LineLayer = Layer.Middle;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Top, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.UpRight:
-                                        n.LineLayer = Layer.Middle;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Top, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineLayer == Layer.Middle))
+                                        {
+                                            now.LineLayer = Layer.Middle;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Top, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.DownLeft:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Middle, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Middle, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.DownRight:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleRight, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleRight, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                 }
                                 break;
                             case Index.MiddleLeft:
-                                switch (n.CutDirection)
+                                switch (now.CutDirection)
                                 {
                                     case CutDirection.Down:
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.MiddleLeft, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.MiddleLeft, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.Left:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.Right:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleRight, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleRight, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.UpLeft:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.UpRight:
-                                        n.LineIndex = Index.Left;
-                                        n.LineLayer = Layer.Middle;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleLeft, Layer.Top, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineIndex == Index.Left && x.LineLayer == Layer.Middle))
+                                        {
+                                            now.LineIndex = Index.Left;
+                                            now.LineLayer = Layer.Middle;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleLeft, Layer.Top, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.DownLeft:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Middle, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Middle, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.DownRight:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                 }
                                 break;
                             case Index.MiddleRight:
-                                switch (n.CutDirection)
+                                switch (now.CutDirection)
                                 {
                                     case CutDirection.Down:
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.MiddleRight, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.MiddleRight, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.Left:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleLeft, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleLeft, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.Right:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.UpLeft:
-                                        n.LineIndex = Index.Right;
-                                        n.LineLayer = Layer.Middle;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleRight, Layer.Top, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineIndex == Index.Right && x.LineLayer == Layer.Middle))
+                                        {
+                                            now.LineIndex = Index.Right;
+                                            now.LineLayer = Layer.Middle;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleRight, Layer.Top, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.UpRight:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.DownLeft:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Left, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Left, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.DownRight:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Middle, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Middle, now.Type, CutDirection.Any));
                                         break;
                                 }
                                 break;
                             case Index.Right:
-                                switch (n.CutDirection)
+                                switch (now.CutDirection)
                                 {
                                     case CutDirection.Up:
-                                        n.LineLayer = Layer.Bottom;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Middle, n.Type, CutDirection.Any));
-                                        newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.Right, Layer.Top, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineLayer == Layer.Bottom))
+                                        {
+                                            now.LineLayer = Layer.Bottom;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Middle, now.Type, CutDirection.Any));
+                                            newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.Right, Layer.Top, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.Down:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Middle, n.Type, CutDirection.Any));
-                                        if (n.Type == NoteType.Blue)
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Middle, now.Type, CutDirection.Any));
+                                        if (now.Type == NoteType.Blue)
                                         {
-                                            newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.Right, Layer.Bottom, n.Type, CutDirection.Any));
+                                            newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.Right, Layer.Bottom, now.Type, CutDirection.Any));
                                         }
                                         else
                                         {
-                                            newNote.Add(new BeatmapNote(n.Time + thirdNote, Index.MiddleRight, Layer.Bottom, n.Type, CutDirection.Any));
+                                            newNote.Add(new BeatmapNote(now.Time + thirdNote, Index.MiddleRight, Layer.Bottom, now.Type, CutDirection.Any));
                                         }
                                         break;
                                     case CutDirection.Left:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleRight, Layer.Top, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleRight, Layer.Top, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.Right:
-                                        n.LineIndex = Index.MiddleRight;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Top, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineIndex == Index.MiddleRight))
+                                        {
+                                            now.LineIndex = Index.MiddleRight;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Top, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.UpLeft:
-                                        n.LineLayer = Layer.Middle;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Top, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineLayer == Layer.Middle))
+                                        {
+                                            now.LineLayer = Layer.Middle;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Top, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.UpRight:
-                                        n.LineLayer = Layer.Middle;
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Top, n.Type, CutDirection.Any));
+                                        if (!noteTemp.Any(x => x != now && x.Time == now.Time && x.LineLayer == Layer.Middle))
+                                        {
+                                            now.LineLayer = Layer.Middle;
+                                            newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Top, now.Type, CutDirection.Any));
+                                        }
                                         break;
                                     case CutDirection.DownLeft:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.MiddleLeft, Layer.Bottom, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.MiddleLeft, Layer.Bottom, now.Type, CutDirection.Any));
                                         break;
                                     case CutDirection.DownRight:
-                                        newNote.Add(new BeatmapNote(n.Time + secondNote, Index.Right, Layer.Middle, n.Type, CutDirection.Any));
+                                        newNote.Add(new BeatmapNote(now.Time + secondNote, Index.Right, Layer.Middle, now.Type, CutDirection.Any));
                                         break;
                                 }
                                 break;
@@ -431,54 +468,19 @@ namespace Lolighter.Methods
                         break;
                 }
 
-                lastNote = n;
+                lastNote = now;
             }
 
             noteTemp.RemoveAll(item => toRemove.Contains(item));
             newNote.AddRange(noteTemp);
             List<BeatmapNote> sorted = newNote.OrderBy(o => o.Time).ToList();
 
-            //Here, we try to remove stacked notes that has been created.
-            for (int i = sorted.Count() - 5; i > 4; i--) //For each note in reverse-order
+            for (int i = 0; i < sorted.Count(); i++)
             {
-                if (sorted[i].CutDirection == CutDirection.Any) //If it's a dot
+                if (sorted.Any(x => x != sorted[i] && x.LineIndex == sorted[i].LineIndex && x.LineLayer == sorted[i].LineLayer && x.Time == sorted[i].Time))
                 {
-                    if (sorted[i].Time - sorted[i - 1].Time <= 0.25 && sorted[i].LineLayer == sorted[i - 1].LineLayer && sorted[i].LineIndex == sorted[i - 1].LineIndex)
-                    {
-                        sorted.Remove(sorted[i]);
-                    }
-                    else if (sorted[i].Time - sorted[i - 2].Time <= 0.25 && sorted[i].LineLayer == sorted[i - 2].LineLayer && sorted[i].LineIndex == sorted[i - 2].LineIndex)
-                    {
-                        sorted.Remove(sorted[i]);
-                    }
-                    else if (sorted[i].Time - sorted[i - 3].Time <= 0.25 && sorted[i].LineLayer == sorted[i - 3].LineLayer && sorted[i].LineIndex == sorted[i - 3].LineIndex)
-                    {
-                        sorted.Remove(sorted[i]);
-                    }
-                    else if (sorted[i].Time - sorted[i - 4].Time <= 0.25 && sorted[i].LineLayer == sorted[i - 4].LineLayer && sorted[i].LineIndex == sorted[i - 4].LineIndex)
-                    {
-                        sorted.Remove(sorted[i]);
-                    }
-                    else if (sorted[i + 1].Time - sorted[i].Time <= 0.25 && sorted[i].LineLayer == sorted[i + 1].LineLayer && sorted[i].LineIndex == sorted[i + 1].LineIndex)
-                    {
-                        sorted.Remove(sorted[i]);
-                    }
-                    else if (sorted[i + 2].Time - sorted[i].Time <= 0.25 && sorted[i].LineLayer == sorted[i + 2].LineLayer && sorted[i].LineIndex == sorted[i + 2].LineIndex)
-                    {
-                        sorted.Remove(sorted[i]);
-                    }
-                    else if (sorted[i + 3].Time - sorted[i].Time <= 0.25 && sorted[i].LineLayer == sorted[i + 3].LineLayer && sorted[i].LineIndex == sorted[i + 3].LineIndex)
-                    {
-                        sorted.Remove(sorted[i]);
-                    }
-                    else if (sorted[i + 4].Time - sorted[i].Time <= 0.25 && sorted[i].LineLayer == sorted[i + 4].LineLayer && sorted[i].LineIndex == sorted[i + 4].LineIndex)
-                    {
-                        sorted.Remove(sorted[i]);
-                    }
-                    else if (sorted[i].Time - sorted[i - 1].Time <= 0.25 && sorted[i - 1].CutDirection == 8 && sorted[i].LineIndex == sorted[i - 1].LineIndex && sorted[i].Type != sorted[i - 1].Type)
-                    {
-                        sorted.Remove(sorted[i - 1]);
-                    }
+                    sorted.Remove(sorted[i]);
+                    i--;
                 }
             }
 

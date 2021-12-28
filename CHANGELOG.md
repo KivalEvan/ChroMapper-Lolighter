@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.1.0 [ TBD ]
+## v1.1.0 [ 2021-12-28 ]
 
 ### Added
 
@@ -20,6 +20,7 @@
 ### Fixed
 
 -   Certain event not being returned in downlight
+-   [Various fixes](https://github.com/Loloppe/Lolighter/commit/563e18eabefedfeef6099d43e375b77262d28d8) from Loloppe
 
 ## v1.0.0 [ 2021-12-24 ]
 

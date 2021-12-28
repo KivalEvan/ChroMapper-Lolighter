@@ -13,7 +13,6 @@ namespace Lolighter.Methods
         {
             // Turns all long strobes into pulse (alternate between fade and on)
             // Remove fast off
-            // Remove fast color switch
             // Automatically set on Backlight during long period of nothing
             // Remove spin/zoom spam
 
@@ -95,7 +94,7 @@ namespace Lolighter.Methods
                 // We remove spam under that speed
                 if (now.Time - previous.Time <= spamSpeed)
                 {
-                    light.Remove(previous);
+                    light.Remove(now);
                 }
             }
 
@@ -104,8 +103,6 @@ namespace Lolighter.Methods
 
         static List<MapEvent> Mod(List<MapEvent> light, double speed)
         {
-            bool fastColorSwap = false;
-
             for (int i = light.Count() - 1; i > 0; i--)
             {
                 MapEvent previous = light[i - 1];
@@ -118,40 +115,11 @@ namespace Lolighter.Methods
                     if (now.Value == 4 || now.Value == 0)
                     {
                         light.Remove(now);
-                        if (i == light.Count())
-                        {
-                            i--;
-                        }
-                        now = light[i];
-                        previous = light[i - 1];
                     }
-                    if (previous.Value == 4 || previous.Value == 0)
+                    else if (previous.Value == 4 || previous.Value == 0)
                     {
                         light.Remove(previous);
-                        if (i == light.Count())
-                        {
-                            i--;
-                        }
-                        now = light[i];
-                        previous = light[i - 1];
                     }
-                    // If one light is Blue and the other is Red, we inverse one of them.
-                    if ((now.Value < 4 && previous.Value > 3) || (now.Value > 3 && previous.Value < 4) && now.Value != 4 && now.Value != 0 && previous.Value != 0 && previous.Value != 4)
-                    {
-                        if (fastColorSwap)
-                        {
-                            now.Value = Inverse(now.Value);
-                            fastColorSwap = false;
-                        }
-                        else
-                        {
-                            fastColorSwap = true;
-                        }
-                    }
-                }
-                else
-                {
-                    fastColorSwap = false;
                 }
             }
 
