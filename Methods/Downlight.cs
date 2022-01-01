@@ -3,7 +3,6 @@ using System.Linq;
 using Options = Lolighter.Items.Options;
 using Utils = Lolighter.Items.Utils;
 using EventLightValue = Lolighter.Items.Enum.EventLightValue;
-using EventType = Lolighter.Items.Enum.EventType;
 
 namespace Lolighter.Methods
 {
@@ -33,29 +32,20 @@ namespace Lolighter.Methods
             }
 
             // Spin/Zoom, we want to remove spam
-            mapEvents[EventType.RotationAllTrackRings] = Spam(mapEvents[EventType.RotationAllTrackRings], Options.Downlight.SpamSpeed);
-            mapEvents[EventType.RotationSmallTrackRings] = Spam(mapEvents[EventType.RotationSmallTrackRings], Options.Downlight.SpamSpeed);
+            foreach (var type in Utils.EnvironmentEvent.RingEventType)
+            {
+                mapEvents[type] = Spam(mapEvents[type], Options.Downlight.SpamSpeed);
+            }
 
             // Put back together the list
             light = new List<MapEvent>();
-            foreach (var type in Utils.EnvironmentEvent.LightEventType)
+            foreach (var type in Utils.EnvironmentEvent.AllEventType)
             {
                 light.AddRange(mapEvents[type]);
             }
-            light.AddRange(mapEvents[EventType.RotatingLeftLasers]);
-            light.AddRange(mapEvents[EventType.RotatingRightLasers]);
 
             // Turn On an Event if no light for a while.
             light = On(light, Options.Downlight.OnSpeed);
-
-            // Put back together the list
-            foreach (var type in Utils.EnvironmentEvent.AuxEventType.Except(Utils.EnvironmentEvent.LaserRotationEventType))
-            {
-                light.AddRange(mapEvents[type]);
-            }
-
-            // Sort the list (no need to it'll be sorted as it is placed)
-            //light.Sort((x, y) => x.Time.CompareTo(y.Time));
 
             return light;
         }
@@ -134,37 +124,12 @@ namespace Lolighter.Methods
                 {
                     if (now.Value == EventLightValue.BlueFlashFade || now.Value == EventLightValue.RedFlashFade || now.Value == EventLightValue.BlueOn || now.Value == EventLightValue.RedOn)
                     {
-                        now.Value = Swap(now.Value);
+                        now.Value = Utils.EnvironmentEvent.SwapLightValue(now.Value);
                     }
                 }
             }
 
             return light;
-        }
-
-        static int Inverse(int temp) //Red -> Blue, Blue -> Red
-        {
-            if (temp > EventLightValue.BlueFlashFade)
-                return temp - 4; //Turn to blue
-            else
-                return temp + 4; //Turn to red
-        }
-
-        static int Swap(int temp)
-        {
-            switch (temp)
-            {
-                case EventLightValue.BlueFlashFade:
-                    return EventLightValue.BlueOn;
-                case EventLightValue.RedFlashFade:
-                    return EventLightValue.RedOn;
-                case EventLightValue.BlueOn:
-                    return EventLightValue.BlueFlashFade;
-                case EventLightValue.RedOn:
-                    return EventLightValue.RedFlashFade;
-                default:
-                    return 0;
-            }
         }
     }
 }

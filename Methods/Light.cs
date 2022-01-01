@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using static Lolighter.Items.Enum;
 using static Lolighter.Items.Utils;
 using Options = Lolighter.Items.Options;
@@ -72,14 +70,6 @@ namespace Lolighter.Methods
                 time[3] = 0.0f;
             }
 
-            int Inverse(int temp) //Red -> Blue, Blue -> Red
-            {
-                if (temp > EventLightValue.BlueFlashFade)
-                    return temp - 4; //Turn to blue
-                else
-                    return temp + 4; //Turn to red
-            }
-
             void TimerDuration() //Check the checkpoint
             {
                 timer = time[0];
@@ -88,7 +78,7 @@ namespace Lolighter.Methods
                     int swapTime = (int)((time[0] - time[1]) / Options.Light.ColorSwap) + 1; //We get the number of "beat" since the last time it entered here this way.
                     for (int i = 0; i < swapTime; i++) //For each time that it need to swap. (Dumb fix for a dumb method)
                     {
-                        color = Inverse(color); //Swap color
+                        color = EnvironmentEvent.InverseColor(color); //Swap color
                         offset += Options.Light.ColorSwap; //Offset incremented
                     }
                 }
@@ -269,23 +259,6 @@ namespace Lolighter.Methods
                 }
             }
 
-            int Swap(int temp)
-            {
-                switch (temp)
-                {
-                    case EventLightValue.BlueFlashFade:
-                        return EventLightValue.BlueOn;
-                    case EventLightValue.RedFlashFade:
-                        return EventLightValue.RedOn;
-                    case EventLightValue.BlueOn:
-                        return EventLightValue.BlueFlashFade;
-                    case EventLightValue.RedOn:
-                        return EventLightValue.RedFlashFade;
-                    default:
-                        return 0;
-                }
-            }
-
             if (Options.Light.NerfStrobes)
             {
                 float lastTimeTop = 100;
@@ -298,7 +271,7 @@ namespace Lolighter.Methods
                     {
                         if (x.Time - lastTimeTop <= 1)
                         {
-                            x.Value = Swap(x.Value);
+                            x.Value = EnvironmentEvent.SwapLightValue(x.Value);
                         }
                         lastTimeTop = x.Time;
                     }
@@ -306,7 +279,7 @@ namespace Lolighter.Methods
                     {
                         if (x.Time - lastTimeNeon <= 1)
                         {
-                            x.Value = Swap(x.Value);
+                            x.Value = EnvironmentEvent.SwapLightValue(x.Value);
                         }
                         lastTimeNeon = x.Time;
                     }
@@ -314,7 +287,7 @@ namespace Lolighter.Methods
                     {
                         if (x.Time - lastTimeSide <= 1)
                         {
-                            x.Value = Swap(x.Value);
+                            x.Value = EnvironmentEvent.SwapLightValue(x.Value);
                         }
                         lastTimeSide = x.Time;
                     }
@@ -606,23 +579,6 @@ namespace Lolighter.Methods
             }
 
             return eventTempo;
-        }
-
-        public static void Shuffle<T>(this IList<T> list)
-        {
-            RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
-            int n = list.Count;
-            while (n > 1)
-            {
-                byte[] box = new byte[1];
-                do provider.GetBytes(box);
-                while (!(box[0] < n * (Byte.MaxValue / n)));
-                int k = (box[0] % n);
-                n--;
-                T value = list[k];
-                list[k] = list[n];
-                list[n] = value;
-            }
         }
     }
 }
