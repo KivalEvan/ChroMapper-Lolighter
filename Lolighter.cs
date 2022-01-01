@@ -92,7 +92,7 @@ namespace Lolighter
         {
             var beatmapActions = new List<BeatmapAction>();
             List<MapEvent> oldEvents = _eventsContainer.LoadedObjects.Cast<MapEvent>().ToList();
-            List<MapEvent> newEvents = Methods.DownLighter.Down(oldEvents);
+            List<MapEvent> newEvents = Methods.DownLighter.Down(oldEvents.ConvertAll(ev => new MapEvent(ev.Time, ev.Type, ev.Value)));
             beatmapActions.Insert(0, new BeatmapObjectDeletionAction(oldEvents, "Lolighter Forced Clear Lighting"));
             foreach (var ev in oldEvents)
             {
