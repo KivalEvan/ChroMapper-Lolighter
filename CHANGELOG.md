@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.1 [ 2022-01-03 ]
+
+### Fixed
+
+-   Potentially fixed undo for light and downlight
+
 ## v1.1.0 [ 2021-12-28 ]
 
 ### Added

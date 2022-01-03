@@ -79,7 +79,8 @@ namespace Lolighter
                     _eventsContainer.DeleteObject(ev, false);
                 }
             }
-            beatmapActions.Insert(0, new BeatmapObjectPlacementAction(newEvents, Options.Light.ClearLighting ? oldEvents : currentEvents, "Lolighter Light"));
+            List<MapEvent> conflictEvents = currentEvents.FindAll(ev => newEvents.Any(ev2 => ev2.Type == ev.Type && ev2.Time == ev.Time) && !ev.IsLightIdEvent && !ev.IsPropogationEvent);
+            beatmapActions.Insert(0, new BeatmapObjectPlacementAction(newEvents, Options.Light.ClearLighting ? Enumerable.Empty<BeatmapObject>() : conflictEvents, "Lolighter Light"));
             foreach (var ev in newEvents)
             {
                 _eventsContainer.SpawnObject(ev, Options.Light.ClearLighting, false);

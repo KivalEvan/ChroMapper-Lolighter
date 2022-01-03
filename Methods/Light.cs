@@ -570,14 +570,18 @@ namespace Lolighter.Methods
                 if (eventTempo.Any(e => e.Time == eventTempo[i].Time && e.Type == eventTempo[i].Type && e != eventTempo[i]))
                 {
                     // Off event
-                    if (eventTempo[i].Value == 0 || eventTempo[i].Value == 4)
+                    if (eventTempo[i].Value == 0)
                     {
                         eventTempo.Remove(eventTempo[i]);
                         i--;
                     }
                 }
+                if (eventTempo.Any(e => e.Time == eventTempo[i].Time && e.Type == eventTempo[i].Type && e != eventTempo[i]))
+                {
+                    eventTempo.Remove(eventTempo[i]);
+                    i--;
+                }
             }
-
             return eventTempo;
         }
     }
